@@ -25,7 +25,7 @@ func (e InvalidHTMLContent) Error() string {
 }
 
 // --------------------
-// Crawler 
+// Crawler
 // --------------------
 
 // Used for 'urls' buffered channel
@@ -40,8 +40,8 @@ type CrawlerI interface {
 
 type Crawler struct {
 
-	// First site to crawl 
-	baseSite string 
+	// First site to crawl
+	baseSite string
 
 	// Domain name encompassing all crawls, this will extracted from 'baseSite' in New()
 	domain string
@@ -49,8 +49,8 @@ type Crawler struct {
 	// urls channel used by all goroutines to add new URLs to parse
 	urls chan string
 
-	// Cache sites that have been visited 
-	// key 		--> value 
+	// Cache sites that have been visited
+	// key 		--> value
 	// string 	--> bool
 	// "site"	--> true
 	visited sync.Map
@@ -60,7 +60,7 @@ type Crawler struct {
 	// (string) --> []string{}
 	// "parent" --> ["child1", "child2"]
 	sitemap sync.Map
-	
+
 	// Used to wait for all goroutines to complete
 	wg sync.WaitGroup
 }
@@ -73,7 +73,7 @@ func (c *Crawler) New(baseSite string) *Crawler {
 	// e.g. https://monzo.com/
 	c.baseSite = baseSite
 
-	// TODO: extract the domain from baseSite. Hardcoded for now. 
+	// TODO: extract the domain from baseSite. Hardcoded for now.
 	c.domain = "monzo.com"
 
 	// create buffered channel
@@ -91,7 +91,7 @@ func (c *Crawler) addSite(site string) {
 // Begin processing sites
 func (c *Crawler) Start() {
 	c.addSite(c.baseSite)
-	
+
 	// TODO: check for error returned from Crawl
 	go c.Crawl()
 }
@@ -219,8 +219,8 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 func main() {
 	var c *Crawler
 	c = c.New("https://monzo.com")
-	c.Start() 
-	c.Wait() 
+	c.Start()
+	c.Wait()
 	c.PrintSitemap()
 	log.Printf("Crawler done. Exiting main.")
 }

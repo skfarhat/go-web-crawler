@@ -3,8 +3,8 @@ package main
 import (
 	// "fmt"
 	"io/ioutil"
-	"testing"
 	"sync"
+	"testing"
 )
 
 // TODO: test that TestFindAbsoluteLinks returns only monzo.com when provided the right domain
@@ -139,23 +139,21 @@ func TestFindAbsoluteLinks_findsAllCorrectly(t *testing.T) {
 }
 
 func TestCrawlerNew(t *testing.T) {
-	var crawler Crawler;
+	var crawler Crawler
 	crawler.New("https://monzo.com")
 }
 
 func TestCrawlerNew_fromNullPointer(t *testing.T) {
-	var crawler *Crawler;
+	var crawler *Crawler
 	crawler = crawler.New("https://monzo.com")
 	if crawler == nil {
 		t.Errorf("Failed to create Crawler from nil pointer")
 	}
 }
 
-// Test that PrintSitemap doesn't fail horribly in simple cases 
+// Test that PrintSitemap doesn't fail horribly in simple cases
 func TestPrintSitemap_noFailOnEmpty(t *testing.T) {
-	var crawler Crawler;
+	var crawler Crawler
 	crawler.New("https://monzo.com")
 	crawler.PrintSitemap()
 }
-
-
