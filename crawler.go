@@ -63,7 +63,7 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 
 	b := make([]string, len(allMatches))
 
-	// take the first capturing group from matches
+	// Take the first capturing group from matches
 	for i, x := range allMatches {
 		b[i] = x[captureGroup]
 	}
@@ -110,11 +110,11 @@ func Crawl(urls chan string, domain string, visited *sync.Map, wg *sync.WaitGrou
 
 	// Place child urls on the urls channel
 	for _, x := range children {
-		// fmt.Printf("Placed %s\n", x)
 		_, present :=  visited.Load(x)
 		if ! present {
 			urls <- x
 			wg.Add(1)
+			// TODO: check for Crawlers that return error. 
 			go Crawl(urls, domain, visited, wg)
 		}
 	}
@@ -133,6 +133,7 @@ func main() {
 
 	urls <- baseSite
 	wg.Add(1)
+	// TODO: check for error returned from Crawl
 	go Crawl(urls, domain, &visited, &wg)
 
 	wg.Wait()
