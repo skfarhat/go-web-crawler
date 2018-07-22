@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-    "sync"
+	"sync"
 )
 
 // ---------------------
@@ -71,14 +71,17 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 	return b
 }
 
+// TODO: what happens when an error is spit out by Crawl?
+// the link is considered handled even though it is not traversed.
+
 // Crawl site by visiting only local pages to the domain
 // Returns error if any occured, nil if none
-func Crawl(urls chan string, domain string, visited *sync.Map, wg *sync.WaitGroup) error {
-	
+func Crawl(urls chan string, domain string, visited *sync.Map, sitemap *sync.Map, wg *sync.WaitGroup) error {
+
 	// Get URL to crawl from channel
 	defer wg.Done()
 	url := <-urls
-	log.Printf("Crawl: %s, domain: %s\n", url, domain)
+	// log.Printf("Crawl: %s\n", url)
 
 	// Fetch URL contents
 	resp, err := http.Get(url)
@@ -106,15 +109,18 @@ func Crawl(urls chan string, domain string, visited *sync.Map, wg *sync.WaitGrou
 	absoluteLinks := FindAbsoluteLinks(html, &domain)
 
 	children = append(children, absoluteLinks...)
+	sitemap.Store(url, children)
 
+	// sitemap.LoadOrStore(url, []string{})
 	// Place child urls on the urls channel
 	for _, x := range children {
-		if _, present := visited.Load(x); ! present {
+		if _, present := visited.Load(x); !present {
 			visited.Store(x, true)
+			// sitemap.Store(url, x)
 			urls <- x
 			wg.Add(1)
-			// TODO: check for Crawlers that return error. 
-			go Crawl(urls, domain, visited, wg)
+			// TODO: check for Crawlers that return error.
+			go Crawl(urls, domain, visited, sitemap, wg)
 		}
 	}
 
@@ -122,11 +128,26 @@ func Crawl(urls chan string, domain string, visited *sync.Map, wg *sync.WaitGrou
 	return nil
 }
 
+func printSiteMap(sitemap *sync.Map) {
+	sitemap.Range(func(k, v interface{}) bool {
+		v1, ok := v.([]string)
+		if !ok {
+			fmt.Printf("Unexpected error!!\n")
+			return false
+		}
+		fmt.Printf("\n%s\n", k)
+		for _, child := range v1 {
+			fmt.Printf("  --> %s\n", child)
+		}
+		return true
+	})
+}
+
 func main() {
 	var wg sync.WaitGroup
-	var visited sync.Map
+	var visited, sitemap sync.Map
 
-	urls := make(chan string, 100) // create buffered channel 
+	urls := make(chan string, 100) // create buffered channel
 	baseSite := "https://www.monzo.com/"
 	domain := "monzo.com"
 
@@ -134,8 +155,11 @@ func main() {
 	urls <- baseSite
 	wg.Add(1)
 	// TODO: check for error returned from Crawl
-	go Crawl(urls, domain, &visited, &wg)
+	go Crawl(urls, domain, &visited, &sitemap, &wg)
 
+	// Wait for all Crawlers to finish
 	wg.Wait()
+
+	printSiteMap(&sitemap)
 	log.Printf("Crawler done. Exiting main.")
 }
