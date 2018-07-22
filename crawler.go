@@ -155,7 +155,39 @@ func (c *Crawler) Wait() {
 	c.wg.Wait()
 }
 
-func (c *Crawler) PrintSitemap() {
+func (c *Crawler) printRecurse(site string, indent int, visited map[string]bool) {
+	visited[site] = true
+
+	children, ok := c.sitemap.Load(site)
+
+	if !ok {
+		return
+	}
+
+	for _, child := range children.([]string) {
+
+		// Print child
+		for i:=0; i < indent; i++ {
+			fmt.Printf(" ")
+		}
+		fmt.Printf("%s\n", child)
+
+		// If child has not been visited do it
+		if _, ok := visited[child]; !ok {
+			c.printRecurse(child, indent+1, visited)		
+		}
+	}
+}
+
+func (c *Crawler) PrintSitemapHierarchy() {
+	visited := make(map[string]bool)
+
+	fmt.Println(c.baseSite)
+	c.printRecurse(c.baseSite, 1, visited)
+}
+
+// TODO: improve the sitemap printing 
+func (c *Crawler) PrintSitemapFlat() {
 	c.sitemap.Range(func(k, v interface{}) bool {
 		v1, ok := v.([]string)
 		if !ok {
@@ -221,6 +253,7 @@ func main() {
 	c = c.New("https://monzo.com")
 	c.Start()
 	c.Wait()
-	c.PrintSitemap()
+	c.PrintSitemapHierarchy()
+	c.PrintSitemapFlat()
 	log.Printf("Crawler done. Exiting main.")
 }
