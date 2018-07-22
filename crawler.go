@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+    "sync"
 )
 
 // ---------------------
@@ -71,8 +72,14 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 }
 
 // Crawl site by visiting only local pages to the domain
-func Crawl(url string, urls chan string, domain string) error {
-	log.Printf("crawl: %s, domain: %s\n", url, domain)
+// Returns error if any occured, nil if none
+func Crawl(urls chan string, domain string, visited *sync.Map, wg *sync.WaitGroup) error {
+	
+	// Get URL to crawl from channel
+	defer wg.Done()
+	url := <-urls
+	visited.Store(url, true)
+	log.Printf("Crawl: %s, domain: %s\n", url, domain)
 
 	// Fetch URL contents
 	resp, err := http.Get(url)
@@ -101,19 +108,33 @@ func Crawl(url string, urls chan string, domain string) error {
 
 	children = append(children, absoluteLinks...)
 
-	// Debug
-	for i, x := range children {
-		fmt.Println(i, x)
+	// Place child urls on the urls channel
+	for _, x := range children {
+		// fmt.Printf("Placed %s\n", x)
+		_, present :=  visited.Load(x)
+		if ! present {
+			urls <- x
+			wg.Add(1)
+			go Crawl(urls, domain, visited, wg)
+		}
 	}
 
-	// Add normalised urls to (urls) channel
+	// No error
 	return nil
 }
 
 func main() {
-	urls := make(chan string)
+	var wg sync.WaitGroup
+	var visited sync.Map
+
+	urls := make(chan string, 100) // create buffered channel 
 	baseSite := "https://www.monzo.com/"
 	domain := "monzo.com"
 
-	Crawl(baseSite, urls, domain)
+	urls <- baseSite
+	wg.Add(1)
+	go Crawl(urls, domain, &visited, &wg)
+
+	wg.Wait()
+	log.Printf("Crawler done. Exiting main.")
 }
