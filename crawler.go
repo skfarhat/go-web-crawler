@@ -70,8 +70,6 @@ func (c *Crawler) New(baseSite string) *Crawler {
 		c = new(Crawler)
 	}
 
-	log.Printf("in New %s\n", baseSite)	
-
 	// e.g. https://monzo.com/
 	c.baseSite = baseSite
 
@@ -83,10 +81,16 @@ func (c *Crawler) New(baseSite string) *Crawler {
 	return c
 }
 
-func (c *Crawler) Start() {
-	c.visited.Store(c.baseSite, true)
-	c.urls <- c.baseSite
+// Adds a new site to process
+func (c *Crawler) addSite(site string) {
+	c.visited.Store(site, true)
+	c.urls <- site
 	c.wg.Add(1)
+}
+
+// Begin processing sites
+func (c *Crawler) Start() {
+	c.addSite(c.baseSite)
 	
 	// TODO: check for error returned from Crawl
 	go c.Crawl()
@@ -136,10 +140,7 @@ func (c *Crawler) Crawl() error {
 	// Place child urls on the urls channel
 	for _, x := range children {
 		if _, present := c.visited.Load(x); !present {
-			c.visited.Store(x, true)
-			// sitemap.Store(url, x)
-			c.urls <- x
-			c.wg.Add(1)
+			c.addSite(x)
 			// TODO: check for Crawlers that return error.
 			go c.Crawl()
 		}
@@ -216,7 +217,6 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 }
 
 func main() {
-	
 	var c *Crawler
 	c = c.New("https://monzo.com")
 	c.Start() 
