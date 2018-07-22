@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html class="no-js " lang="en" dir="ltr">
+  <head>
+  
+  
+
+
+  
+  <script src="https://cdn.optimizely.com/js/5973193136.js"></script>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="description" content="Monzo is a bank that makes life easier, not harder.">
+  <meta name="theme-color" content="#14233C" />
+
+  <title>Monzo – It's time for a new kind of bank</title>
+
+  <link rel="shortcut icon" href="/static/images/favicon.png">
+  <link rel="image_src" href="/static/images/mondo-mark-01.png" />
+  <link rel="alternate" type="application/atom+xml" title="Monzo Blog" href="/feed.xml">
+  
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="" />
+  <meta property="og:url" content="https://monzo.com/" />
+  <meta property="og:description" content="Monzo are building a smart bank on your smartphone and we need your help to create the bank of the future." />
+  <meta property="og:image" content="https://monzo.com/static/images/facebook-campaign-image-01.png" />
+  <meta property="og:locale" content="en_GB" />
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@monzo">
+  <meta name="twitter:title" content="">
+  <meta name="twitter:description" content="Get early access now! Monzo are building a bank as smart as your phone.">
+  <meta name="twitter:image" content="https://monzo.com/static/images/twitter-card.png">
+
+  
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+
+  
+
+  
+    <link rel="stylesheet" href="/static/css/monzo-framework.min.css?v21">
+  
+
+  
+
+  
+
+  <style>
+    .c-cookie-policy {
+      align-items: center;
+      font-size: 14px;
+      background-color: rgba(255, 255, 255, .95);
+      border: 0;
+      bottom: 0;
+      display: none;
+      flex-basis: 100%;
+      justify-content: center;
+      line-height: 18px;
+      padding: 12px 8px 8px 16px;
+      position: fixed;
+      margin: 0 auto;
+      z-index: 9000;
+    }
+
+    .c-cookie-policy[open="open"] {
+      display: -webkit-flex;
+      display: -ms-flex;
+      display: flex;
+    }
+
+    .c-cookie-policy .c-cookie-policy__button {
+      background-color: rgba(0, 160, 214, .1);
+      color: #00a0d6;
+      border: 0;
+      font-size: 14px;
+      margin: 0 0 0 16px;
+    }
+
+    @media screen and (min-width: 768px) {
+      .c-cookie-policy {
+        background-color: white;
+        bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 1px 8px rgba(0, 0, 0, .2);
+        font-size: 16px;
+        flex-basis: auto;
+        padding-top: 8px;
+      }
+
+      .c-cookie-policy .c-cookie-policy__button {
+        font-size: 16px;
+      }
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      animate: 0.2s;
+      background: #00a0d6;
+      border-radius: 25px;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #00a0d6;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -8px;
+    }
+    input[type=range]:focus::-webkit-slider-runnable-track {
+      background: #00a0d6;
+    }
+
+    input[type=range]::-moz-range-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      animate: 0.2s;
+      background: #00a0d6;
+      border-radius: 25px;
+    }
+    input[type=range]::-moz-range-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #00a0d6;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -8px;
+    }
+
+    input[type=range]::-ms-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      animate: 0.2s;
+      background: transparent;
+      border-color: transparent;
+      border-width: 39px 0;
+      color: transparent;
+    }
+    input[type=range]::-ms-fill-lower {
+      background: #00a0d6;
+      border-radius: 50px;
+    }
+    input[type=range]::-ms-fill-upper {
+      background: #00a0d6;
+      border-radius: 50px;
+    }
+    input[type=range]::-ms-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 10px;
+      background: #00a0d6;
+      cursor: pointer;
+    }
+    input[type=range]:focus::-ms-fill-lower {
+      background: #00a0d6;
+    }
+    input[type=range]:focus::-ms-fill-upper {
+      background: #00a0d6;
+    }
+
+    .dark input[type=range]::-webkit-slider-runnable-track,
+    .dark input[type=range]::-webkit-slider-thumb,
+    .dark input[type=range]:focus::-webkit-slider-runnable-track,
+    .dark input[type=range]::-moz-range-track,
+    .dark input[type=range]::-moz-range-thumb,
+    .dark input[type=range]::-ms-fill-lower,
+    .dark input[type=range]::-ms-fill-upper,
+    .dark input[type=range]::-ms-thumb,
+    .dark input[type=range]:focus::-ms-fill-lower,
+    .dark input[type=range]:focus::-ms-fill-upper {
+      background: #14233C;
+    }
+
+    @-webkit-keyframes swinging{
+      0%{-webkit-transform: rotate(10deg);}
+      50%{-webkit-transform: rotate(-5deg)}
+      100%{-webkit-transform: rotate(10deg);}
+    }
+
+    @keyframes swinging{
+      0%{transform: rotate(10deg);}
+      50%{transform: rotate(-5deg)}
+      100%{transform: rotate(10deg);}
+    }
+
+    .swingimage{
+      -webkit-transform-origin: 50% 0;
+      transform-origin: 50% 0;
+      -webkit-animation: swinging 3.5s ease-in-out forwards infinite;
+      animation: swinging 3.5s ease-in-out forwards infinite;
+    }
+  </style>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.3.5/mobile-detect.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.3.5/mobile-detect-modernizr.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+
+  <script>
+    // Twitter widget is loading.
+    window.twttr = function (d, s, id) {
+      var t, js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return; js = d.createElement(s); js.id = id;
+      js.src = "https://platform.twitter.com/widgets.js";
+      fjs.parentNode.insertBefore(js, fjs);
+      return window.twttr || (t = { _e: [], ready: function (f) { t._e.push(f) } });
+    }(document, 'script', 'twitter-wjs');
+  </script>
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>.async-hide { opacity: 0 !important} </style>
+<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;
+h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
+(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;
+})(window,document.documentElement,'async-hide','dataLayer',4000,
+{'GTM-WPM2MRF':true});</script>
+
+<script>
+  (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+  function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+  e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+  e.src='//www.google-analytics.com/analytics.js';
+  r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+  var branch = 'master';
+  ga('create','UA-63104269-1');
+  ga('require', 'GTM-WPM2MRF');
+  ga('set', 'dimension1', branch);
+  ga('send','pageview', { 'dimension1': branch });
+</script>
+
+<script>
+  /**
+  * Function that tracks a click on an outbound link in Analytics.
+  * This function takes a valid URL string as an argument, and uses that URL
+  * string as the event label. Setting the transport method to 'beacon' lets
+  * the hit be sent using 'navigator.sendBeacon' in browser that support it.
+  */
+  var trackOutboundLink = function(url) {
+    var branch = 'master';
+    ga('send', 'event', 'outbound', 'click', url, {
+      'dimension1':  branch,
+      'transport': 'beacon',
+      'hitCallback': function(){document.location = url;}
+    });
+  }
+</script>
+
+  <style>
+  @media screen and (max-width: 768px) {
+    .c-header.js-scroll-up.is-active {
+      top: 0;
+    }
+  }
+  </style>
+</head>
+
+  <body>
+    
+<header class="c-header" id="navigation">
+  <div class="c-header__container">
+    <a href="/" class="c-header__logo" title="Monzo home page">Monzo</a>
+    <nav class="c-header__nav" aria-labelledby="menu-toggle">
+      <button class="c-header__toggle" id="menu-toggle" aria-expanded="false" title="menu" aria-controls="menu">
+        <span class="c-header__open">Menu <span aria-hidden="true">&equiv;</span></span>
+        <span class="c-header__close">Close menu <span aria-hidden="true"><svg width="10" height="10" xmlns="http://www.w3.org/2000/svg"><path d="M5 3.586L8.182.404a.5.5 0 0 1 .707 0l.707.707a.5.5 0 0 1 0 .707L6.414 5l3.182 3.182a.5.5 0 0 1 0 .707l-.707.707a.5.5 0 0 1-.707 0L5 6.414 1.818 9.596a.5.5 0 0 1-.707 0L.404 8.89a.5.5 0 0 1 0-.707L3.586 5 .404 1.818a.5.5 0 0 1 0-.707L1.11.404a.5.5 0 0 1 .707 0L5 3.586z" fill="#FFF" fill-rule="evenodd"/></svg></span></span>
+      </button>
+      <div class="c-header__menu" id="menu" aria-hidden="true">
+        <ul class="c-header__list" role="menu">
+          <li class="c-header__item" role="menuitem"><a href="/about" class="c-header__link" >About</a></li>
+          <li class="c-header__item" role="menuitem"><a href="/blog" class="c-header__link" >Blog</a></li>
+          <li class="c-header__item" role="menuitem"><a href="/community" class="c-header__link" >Community</a></li>
+          <li class="c-header__item" role="menuitem"><a href="/faq" class="c-header__link" >FAQ</a></li>
+        </ul>
+        <a class="c-header__button" href="/download">Sign up</a>
+      </div>
+    </nav>
+  </div>
+</header>
+<script>
+  var header = document.querySelector('#navigation');
+  var toggle = document.querySelector('#menu-toggle');
+  var menu = document.querySelector('#menu');
+  var menuItems = document.querySelectorAll('#menu li a');
+
+  toggle.addEventListener('click', function(){
+    if (menu.classList.contains('is-active')) {
+      this.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('aria-hidden', 'true');
+      menu.classList.remove('is-active');
+      header.classList.remove('is-active');
+    } else {
+      menu.classList.add('is-active');
+      header.classList.add('is-active');
+      menu.setAttribute('aria-hidden', 'false');
+      this.setAttribute('aria-expanded', 'true');
+    }
+  });
+</script>
+
+
+    <main id="main" class="main">
+      <section class="strip strip--middle strip--gradient">
+  <div class="container">
+    <div class="grid-row grid-row--center cover-md--640">
+      <div class="grid-col-6-md grid-col-10-sm grid-col-12">
+        <div class="grid-row grid-row--no-gutter grid-row--full-height">
+          <div class="grid-col-12--no-gutter u-padding-top-huge-md u-margin-top-huge-md u-align-center-sm u-align-left-md" style="align-self: center;">
+            <h1 class="u-font-maison">The bank of the future</h1>
+            <p class="u-font-size-h3-md">This isn’t banking as you know it. Monzo is a bank for everyone, that works with you, for you.</p>
+            <p class="u-font-size-h3-md">Join today for your own UK current account.</p>
+          </div>
+          <div class="grid-col-12--no-gutter u-align-center-sm u-align-left-md" style="align-self: flex-end;">
+            <p class="u-color-grey-blue-dark">Download and signup now on iOS and Android</p>
+            <p class="u-align-center u-align-left-md">
+              <a href="https://itunes.apple.com/gb/app/mondo/id1052238659" onclick="trackOutboundLink('https://itunes.apple.com/gb/app/mondo/id1052238659'); return false;" class="o-badge-ios u-margin-bottom-small u-margin-bottom-none-sm" aria-label="External link to the iOS app store">Download the Monzo app on iOS</a>
+              <a href="/-play-store-redirect" onclick="trackOutboundLink('/-play-store-redirect'); return false;" class="o-badge-android" aria-label="External link to the Google play store">Download the Monzo app on Android</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="grid-col-6-md grid-col-12">
+        <img
+          class="u-auto-center u-display-block-md" hidden
+          sizes="(max-width: 1952px) 100vw, 1952px"
+          srcset="
+          /static/images/home/v3/hero_gbl2so_c_scale,w_200.png 200w,
+          /static/images/home/v3/hero_gbl2so_c_scale,w_702.png 702w,
+          /static/images/home/v3/hero_gbl2so_c_scale,w_1033.png 1033w,
+          /static/images/home/v3/hero_gbl2so_c_scale,w_1309.png 1309w,
+          /static/images/home/v3/hero_gbl2so_c_scale,w_1952.png 1952w"
+          src="/static/images/home/v3/hero_gbl2so_c_scale,w_1952.png"
+          style="position: absolute; width: 976px; bottom: 0;" alt="Monzo Card with iOS and Android phones showing the Monzo app feed">
+        <img
+          sizes="(max-width: 922px) 100vw, 922px"
+          srcset="
+          /static/images/home/v3/cards_k8vn9o_c_scale,w_200.png 200w,
+          /static/images/home/v3/cards_k8vn9o_c_scale,w_658.png 658w"
+          src="/static/images/home/v3/cards_k8vn9o_c_scale,w_658.png"
+          class="u-flush-to-bottom u-auto-center u-display-none-md" width="375"  alt="Monzo Current Account Cards">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip strip--grey strip--white-md">
+  <div class="container">
+    <div class="grid-row grid-row--middle u-align-center">
+      <a href="https://www.theguardian.com/technology/2017/dec/17/monzo-facebook-of-banking" aria-label="External link to a Guardian article" id="pr-guardian">
+        <img class="u-auto-center" src="https://d33wubrfki0l68.cloudfront.net/dc6ee59fc395bae7e315d8adadbe5af408a4f28d/4365a/static/images/home/pr-guardian.svg" alt="The Guardian">
+      </a>
+      <a href="https://www.telegraph.co.uk/personal-banking/current-accounts/monzo-atom-revolut-starling-everything-need-know-digital-banks/" aria-label="External link to a Telegraph article" id="pr-thetelegraph">
+        <img class="u-auto-center" src="https://d33wubrfki0l68.cloudfront.net/9de7a07ce92be0328bfc11f8437b5a35efb1dcbd/26532/static/images/home/pr-thetelegraph.svg" alt="The Telegraph">
+      </a>
+      <a href="https://www.thetimes.co.uk/article/tom-blomfield-the-man-who-made-monzo-g8z59dr8n" aria-label="External link to a Times article" id="pr-thetimes">
+        <img class="u-auto-center" src="https://d33wubrfki0l68.cloudfront.net/f50cc97389215bf38a6ce9d2bfba2fc556c3ec21/a7583/static/images/home/pr-thetimes.svg" width="150" alt="The Times">
+      </a>
+      <a href="https://www.standard.co.uk/tech/monzo-prepaid-card-current-accounts-challenger-bank-a3805761.html" aria-label="External link to a Evening Standard article" id="pr-eveningstandard">
+        <img class="u-auto-center" src="https://d33wubrfki0l68.cloudfront.net/9d538225bcf8e425a05e70cb425002aac8b9a898/e529b/static/images/home/pr-standard.svg" alt="Evening Standard" width="100">
+      </a>
+    </div>
+  </div>
+</section>
+<section class="strip u-padding-bottom-none">
+  <div class="container">
+    <div class="grid-row grid-row--center grid-row-md--reverse">
+      <div class="grid-col-12 grid-col-6-lg grid-col-6-md offset-col-1-md">
+        <h2 class="u-padding-top-large-md">Use your Monzo card with&nbsp;Apple&nbsp;Pay</h2>
+        <p>Apple Pay is an easy, secure and private way to pay. Add your Monzo card to Apple Pay through your Wallet, or by going to the Account tab in the Monzo app.</p>
+        <p>
+          <a href="/features/apple-pay" class="o-button-text u-width-full u-width-auto-md u-margin-top">Read more about using Apple Pay ›</a>
+        </p>
+        <img src="https://d33wubrfki0l68.cloudfront.net/44e6548c1321b56b3061b5d188ee7720b1b5afe6/51d4a/static/images/apple-pay/monzo-apple-pay.svg" class="u-padding-bottom-large u-auto-center u-margin-left-none-md" width="260" alt="Monzo and Apple Pay logo">
+      </div>
+      <div class="grid-col-9 grid-col-5-md u-display-flex grid-col-4-lg offset-col-1-lg">
+        <img
+          sizes="(max-width: 922px) 100vw, 922px"
+          srcset="
+          /static/images/home/v3/apple-pay-iphone-x-half_kpbhlf_c_scale,w_200.png 200w,
+          /static/images/home/v3/apple-pay-iphone-x-half_kpbhlf_c_scale,w_772.png 772w,
+          /static/images/home/v3/apple-pay-iphone-x-half_kpbhlf_c_scale,w_922.png 922w"
+          src="/static/images/home/v3/apple-pay-iphone-x-half_kpbhlf_c_scale,w_922.png"
+          style="align-self: flex-end;" alt="iPhone X with a Monzo Card on Apple Pay">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip">
+  <div class="container">
+    <div class="grid-row grid-row--center grid-row--middle">
+      <div class="grid-col-12 grid-col-6-md">
+        <h2>Manage your money</h2>
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <img src="https://d33wubrfki0l68.cloudfront.net/08b8a3e3f93815e98d0dc40adf8765a29b5246f3/8ae0b/static/images/icons/target.svg" class="u-float-left-md" width="36" alt="Target icon">
+            <h4 class="u-font-maison u-margin-top u-margin-top-small-md u-padding-left-huge-md">Set spending targets</h4>
+            <p class="u-margin-left-huge-md u-padding-bottom-md">Set monthly targets for spending on things like groceries and going out.</p>
+          </div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <img src="https://d33wubrfki0l68.cloudfront.net/a7a5548ded0ae759328e11028474db5f8a37c18f/e6eb6/static/images/icons/summary.svg" class="u-float-left-md" width="36" alt="Pie chart">
+            <h4 class="u-font-maison u-margin-top u-margin-top-small-md u-padding-left-huge-md">See an easy summary</h4>
+            <p class="u-margin-left-huge-md u-padding-bottom-md">See an overview of your account any time, sorted by what you spend on, with notifications if you’re spending too fast.</p>
+          </div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <img src="https://d33wubrfki0l68.cloudfront.net/60045532182333e43939ffac517b7848e1541dac/f485d/static/images/icons/notification.svg" class="u-float-left-md" width="36" alt="notification bell with count">
+            <h4 class="u-font-maison u-margin-top u-margin-top-small-md u-padding-left-huge-md">Get instant notifications</h4>
+            <p class="u-padding-left-huge-md">Get a notification the moment you use your card, before the receipt finishes printing.</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid-col-12 grid-col-8-sm offset-col-1-md grid-col-5-md">
+        <img
+          sizes="(max-width: 1016px) 100vw, 1016px"
+          srcset="
+          /static/images/home/v3/manage-your-money-app_e7opez_c_scale,w_200.png 200w,
+          /static/images/home/v3/manage-your-money-app_e7opez_c_scale,w_444.png 444w,
+          /static/images/home/v3/manage-your-money-app_e7opez_c_scale,w_624.png 624w,
+          /static/images/home/v3/manage-your-money-app_e7opez_c_scale,w_785.png 785w,
+          /static/images/home/v3/manage-your-money-app_e7opez_c_scale,w_1016.png 1016w"
+          src="manage-your-money-app_e7opez_c_scale,w_1016.png"
+          alt="Image of the Monzo Summary tab on iOS and Android">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip">
+  <div class="container">
+    <div class="grid-row grid-row--center grid-row--middle">
+      <div class="grid-col-12">
+        <h2 class="u-align-center u-margin-bottom-large-md">Travel stress-free</h2>
+      </div>
+      <div class="grid-col-12 grid-col-6-md grid-col-7-lg">
+        <img
+          class="u-auto-center"
+          sizes="(max-width: 1238px) 100vw, 1238px"
+          srcset="
+          /static/images/home/v3/travel-notification_mlkvtk_c_scale,w_200.png 200w,
+          /static/images/home/v3/travel-notification_mlkvtk_c_scale,w_454.png 454w,
+          /static/images/home/v3/travel-notification_mlkvtk_c_scale,w_646.png 646w,
+          /static/images/home/v3/travel-notification_mlkvtk_c_scale,w_815.png 815w,
+          /static/images/home/v3/travel-notification_mlkvtk_c_scale,w_1238.png 1238w"
+          src="/static/images/home/v3/travel-notification_mlkvtk_c_scale,w_1238.png"
+          alt="World map with a Travel notification">
+      </div>
+      <div class="grid-col-12 u-padding-top-huge-md">
+        <div class="grid-row">
+          <div class="grid-col-12 grid-col-4-md">
+            <img src="https://d33wubrfki0l68.cloudfront.net/b08ddedc342d874fb93f784fc28ee71ca5487399/1c210/static/images/icons/globe.svg" width="36" alt="Earth icon">
+            <h4 class="u-font-maison u-margin-top">Use your card anywhere</h4>
+            <p>Monzo works all around the world, and you don’t need to tell us if you’re going away.</p>
+          </div>
+          <div class="grid-col-12 grid-col-4-md">
+            <img src="https://d33wubrfki0l68.cloudfront.net/d370c5459719758b15af4681a45b2c20574553d4/4e1f8/static/images/icons/atm.svg" width="36" alt="Cash/ATM">
+            <h4 class="u-font-maison u-margin-top">Take out cash</h4>
+            <p>Withdraw up to £200 every 30 days for free (there’s a 3% charge after that).</p>
+          </div>
+          <div class="grid-col-12 grid-col-4-md">
+            <img src="https://d33wubrfki0l68.cloudfront.net/55e56bf178b0c79a0035e55fce1a7bff6617cc7b/a9f04/static/images/icons/money.svg" width="36" alt="Stacked up coins">
+            <h4 class="u-font-maison u-margin-top">Spend for free</h4>
+            <p>We don’t add any fees or charges for spending with your card, and we don’t mark up the exchange rate.</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid-col-12 u-align-center u-padding-top">
+        <p><a href="/features/travel" class="o-button-text u-width-full u-width-auto-md u-margin-top">Read more about travelling with Monzo ›</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip">
+  <div class="container">
+    <div class="grid-row grid-row--middle grid-row--center">
+      <div class="grid-col-12 grid-col-6-md">
+        <h2>Send money easily</h2>
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <img src="https://d33wubrfki0l68.cloudfront.net/c32e397e41c366e843d2abb2115ccc5695a225dc/4f676/static/images/icons/friends.svg" class="u-float-left-md" width="36" alt="Icon for group of friends">
+            <h4 class="u-font-maison u-margin-top u-margin-top-small-md u-padding-left-huge-md">Pay people in seconds</h4>
+            <p class="u-margin-left-huge-md u-padding-bottom-md">Send bank transfers that arrive instantly, and pay nearby friends over Bluetooth without needing to know their details.</p>
+          </div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <img src="https://d33wubrfki0l68.cloudfront.net/051b138f45c72e7726fc03639d444a337c2faaa8/78134/static/images/icons/reocurring.svg" class="u-float-left-md" width="36" alt="In-app recurring icon">
+            <h4 class="u-font-maison u-margin-top u-margin-top-small-md u-padding-left-huge-md">Set up Direct Debits and standing orders</h4>
+            <p class="u-margin-left-huge-md u-padding-bottom-large">Manage recurring payments from your app.</p>
+          </div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <img src="https://d33wubrfki0l68.cloudfront.net/bfdc495a00ab14f2cfdda905cdefd0af068a57f1/31381/static/images/icons/currency.svg" class="u-float-left-md" width="36" alt="In-app payments abroad icon">
+            <h4 class="u-font-maison u-margin-top u-margin-top-small-md u-padding-left-huge-md">Send money abroad</h4>
+            <p class="u-margin-left-huge-md u-padding-bottom-large">Send money internationally from your Monzo app for up to 8x cheaper than with high street banks, powered by TransferWise.</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid-col-12 grid-col-8-sm grid-col-5-md offset-col-1-md">
+        <img
+          class="u-auto-center"
+          sizes="(max-width: 1016px) 100vw, 1016px"
+          srcset="
+          /static/images/home/v3/send-money_ype0cq_c_scale,w_200.png 200w,
+          /static/images/home/v3/send-money_ype0cq_c_scale,w_451.png 451w,
+          /static/images/home/v3/send-money_ype0cq_c_scale,w_633.png 633w,
+          /static/images/home/v3/send-money_ype0cq_c_scale,w_783.png 783w,
+          /static/images/home/v3/send-money_ype0cq_c_scale,w_1016.png 1016w"
+          src="/static/images/home/v3/send-money_ype0cq_c_scale,w_1016.png"
+          alt="Monzo Payments view on iOS and sending money on Android">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip">
+  <div class="container">
+    <div class="grid-row grid-row--center grid-row--middle grid-row-md--reverse">
+      <div class="grid-col-12 grid-col-6-md offset-col-1-md">
+        <h2>Keep your money safe</h2>
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <img src="https://d33wubrfki0l68.cloudfront.net/fd244f83f5ecfeea12de01dca1e7087a4c6046ab/7dc83/static/images/icons/freeze.svg" class="u-float-left-md" width="36" alt="In-app freeze card icon">
+            <h4 class="u-font-maison u-margin-top u-margin-top-small-md u-padding-left-huge-md">Stay in control</h4>
+            <p class="u-margin-left-huge-md u-padding-bottom-md">If you lose your card, freeze it in the app and get a new one the next day. (Or defrost it if you find it again.)</p>
+          </div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-col-12">
+            <img src="https://d33wubrfki0l68.cloudfront.net/56320ffed67e4501b67fe991456104cbbf639656/c29fc/static/images/icons/shield.svg" class="u-float-left-md" width="36" alt="Two tone colour shield">
+            <h4 class="u-font-maison u-margin-top u-margin-top-small-md u-padding-left-huge-md">Rest easy</h4>
+            <p class="u-padding-left-huge-md">We’re part of the <a href="https://www.fscs.org.uk/"><abbr title="Financial Services Compensation Scheme">FSCS</abbr></a>, so your money is protected up to &pound;85,000.</p>
+          </div>
+        </div>
+      </div>
+      <div class="grid-col-12 grid-col-8-sm grid-col-5-md">
+        <img
+          sizes="(max-width: 1016px) 100vw, 1016px"
+          srcset="
+          /static/images/home/v3/security_gvlppo_c_scale,w_200.png 200w,
+          /static/images/home/v3/security_gvlppo_c_scale,w_463.png 463w,
+          /static/images/home/v3/security_gvlppo_c_scale,w_650.png 650w,
+          /static/images/home/v3/security_gvlppo_c_scale,w_800.png 800w,
+          /static/images/home/v3/security_gvlppo_c_scale,w_1016.png 1016w"
+          src="/static/images/home/v3/security_gvlppo_c_scale,w_1016.png"
+          class="u-auto-center" alt="Image of the Monzo Card Management on iOS and Android">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip strip-md--middle cover cover--500 cover-md--640" style="background-image: url('/static/images/about/about-hero.png');">
+  <div class="container">
+    <div class="grid-row">
+      <div class="grid-col-12 grid-col-6-md u-color-white u-padding-top-huge u-padding-top-none-md u-margin-top u-margin-top-none-md">
+        <h2>The Monzo Current Account</h2>
+        <p>A full UK bank account that you can open from your phone in minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip strip--gradient-light">
+  <div class="container u-flush-to-top-huge u-flush-to-top-large-md">
+    <div class="grid-row">
+      <div class="grid-col-6-md grid-col-12 o-box o-box--white">
+        <div class="grid-row grid-row--middle">
+          <div class="grid-col-12 grid-col-9-md">
+            <h2 class="u-font-maison u-font-size-h3-md"><a href="/features/switch"><span class="u-color-navy">Easy account switching &rsaquo;</span></a></h2>
+            <p>The Current Account Switch Service makes it simple, reliable and hassle-free to switch from one UK bank to another.</p>
+          </div>
+          <div class="grid-col-12 grid-col-3-md">
+            <img src="https://d33wubrfki0l68.cloudfront.net/4299b286923fe29d54ef1c2ac8e0f862e8c3c7ae/8e6f2/static/images/home/v3/current-account-switch.png" width="120" class="u-auto-center" alt="Current Account Switching Service">
+          </div>
+        </div>
+      </div>
+      <div class="grid-col-6-md grid-col-12 o-box o-box--white">
+        <div class="grid-row grid-row--middle">
+          <div class="grid-col-12 grid-col-9-md">
+            <h2 class="u-font-maison u-font-size-h3-md">Straightforward payments</h2>
+            <p>Set up Direct Debits and standing orders in-app, and send money to any other UK bank account instantly.</p>
+          </div>
+          <div class="grid-col-12 grid-col-3-md">
+            <img src="https://d33wubrfki0l68.cloudfront.net/f11cd794eecb51cdf756ca7c471cc832d2caaab4/fc7ec/static/images/home/v3/directdebits.png" width="100" class="u-auto-center" alt="Direct debit logo">
+            <img src="https://d33wubrfki0l68.cloudfront.net/055cbb39cdf109558802d8cfe45c6a45c3f8b64b/02c75/static/images/home/v3/fasterpayments.png" width="78" class="u-auto-center" alt="Faster payments logo">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-row u-margin-top-large-md">
+      <div class="grid-col-6-md grid-col-12 o-box o-box--white">
+        <div class="grid-row grid-row--middle">
+          <div class="grid-col-12 grid-col-9-md">
+            <h2 class="u-font-maison u-font-size-h3-md"><a href="/features/overdrafts"><span class="u-color-navy">A flexible overdraft, if you want it &rsaquo;</span></a></h2>
+            <p>If you’re eligible, you can switch on an overdraft in the app any time. Don’t want an overdraft? No problem, you don’t have to have one.</p>
+          </div>
+          <div class="grid-col-12 grid-col-3-md">
+            <img src="https://d33wubrfki0l68.cloudfront.net/b57c6e0e1a3ff5e3131da5ff6f5efd923c859157/7553b/static/images/home/v3/overdraft-icon.png" width="80" class="u-auto-center" alt="Overdraft plus icon">
+          </div>
+        </div>
+      </div>
+      <div class="grid-col-6-md grid-col-12 o-box o-box--white">
+        <div class="grid-row grid-row--middle">
+          <div class="grid-col-12 grid-col-9-md">
+            <h2 class="u-font-maison u-font-size-h3-md">Protection for your money</h2>
+            <p>Every Monzo account is protected by the Financial Services Compensation Scheme (FSCS), so your money is safe up to &pound;85,000 no matter what happens.</p>
+          </div>
+          <div class="grid-col-12 grid-col-3-md">
+            <img src="https://d33wubrfki0l68.cloudfront.net/4ee61409a5a0a86c09ebf7646dd9d590d97a0440/1eab9/static/images/home/v3/fscs-logo.png" width="100" class="u-auto-center" alt="Financial Services Compensation Scheme logo">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-row u-padding-top u-padding-top-large-md">
+      <div class="grid-col-12 u-align-center">
+        <h3 class="u-font-size-h2 u-font-maison u-font-light">Join our <span id="num-accounts"></span> customers today</h3>
+        <p>
+          <a href="https://itunes.apple.com/gb/app/mondo/id1052238659" onclick="trackOutboundLink('https://itunes.apple.com/gb/app/mondo/id1052238659'); return false;" class="o-badge-ios" aria-label="External link to the iOS app store">Download the Monzo app on iOS</a>
+          <a href="/-play-store-redirect" onclick="trackOutboundLink('/-play-store-redirect'); return false;" class="o-badge-android" aria-label="External link to the Google play store">Download the Monzo app on Android</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip strip--middle cover cover--500 cover-md--640" style="background-image: url('/static/images/home/v3/customer-support-hero.jpg');">
+  <div class="container">
+    <div class="grid-row">
+      <div class="gird-col-12 grid-col-5-md offset-col-7-md u-color-white">
+        <h2>Human help, whenever you need it</h2>
+        <p>We might be a bank in an app, but we’re always here to help. Every customer gets access to 24/7 customer support through the app — just send us a chat message and we’ll get back to you ASAP.</p>
+        <p>Not into chat? <a href="&#109;&#97;&#x69;&#108;&#116;&#111;&#x3a;&#x68;&#x65;&#108;&#112;&#64;&#x6d;&#111;&#x6e;&#122;&#111;&#46;&#x63;&#111;&#x6d;"><span class="u-color-white">Email</span></a> or call us at any time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip">
+  <div class="container">
+    <div class="grid-row grid-row--middle grid-row--center">
+      <div class="grid-col-12 grid-col-8-md grid-col-6-lg">
+        <h2>We're building Monzo together</h2>
+        <p>We're doing things differently. For too long, banking has been harder than it needs to be.</p>
+        <p>We want to change that and build a bank with everyone, for everyone. Join our amazing community of users and suggest features, give feedback and help us test the app, so together we can build something we all love.</p>
+        <p><a href="https://monzo.com/community" class="o-button-text u-width-full u-width-auto-md u-margin-top">Join our community today &rsaquo;</a></p>
+      </div>
+      <div class="grid-col-9 grid-col-3-md offset-col-1-md grid-col-4-lg">
+        <img
+          sizes="(max-width: 792px) 100vw, 792px"
+          srcset="
+          /static/images/home/v3/bank-love_uw2hzy_c_scale,w_200.png 200w,
+          /static/images/home/v3/bank-love_uw2hzy_c_scale,w_792.png 792w"
+          src="/static/images/home/v3/bank-love_uw2hzy_c_scale,w_792.png"
+          class="u-auto-center"
+          width="375" alt="Bank love heart graphic">
+      </div>
+    </div>
+  </div>
+</section>
+<section class="strip strip--grey">
+  <div class="container">
+    <div class="grid-row grid-row--center">
+      <div class="grid-col-12 grid-col-8-md u-align-center">
+        <h2 class="u-font-size-h2 u-font-maison u-font-light">Help us build the kind of bank you want to use</h2>
+      </div>
+    </div>
+    <div class="grid-row grid-row--center">
+      <div class="grid-col-12 grid-col-6-md u-align-center">
+        <p>Download the Monzo app on iOS or Android and become one of the hundreds of thousands of people using a better bank.</p>
+        <p class="u-margin-top-large">
+          <a href="https://itunes.apple.com/gb/app/mondo/id1052238659" target="_blank" rel="noopener noreferrer" onclick="trackOutboundLink('https://itunes.apple.com/gb/app/mondo/id1052238659'); return false;" class="o-badge-ios u-display-none--android u-display-inline-block-md--android" aria-label="External link to the iOS app store">Download the Monzo app on iOS</a>
+          <a href="/-play-store-redirect" target="_blank" rel="noopener noreferrer" onclick="trackOutboundLink('/-play-store-redirect'); return false;" class="o-badge-android u-display-none--iOS u-display-inline-block-md--iOS" aria-label="External link to the Google play store">Download the Monzo app on Android</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+function refreshCounter() {
+   $.ajax({
+       url: "https://cors-anywhere-monzo.herokuapp.com/https://mondobank.looker.com/looks/nmDRFzqr4mVDcN7GKq2qhN9dbv7zdSzx.json?_=1505318215336",
+       type: "GET",
+       cache: false,
+       dataType: "json",
+       success: function(data) {
+         var numAccounts = data[0]["current_accounts_num_live.mastercard_card_id_num"]
+         if(!isNaN(numAccounts)) {
+           $("#num-accounts").html(parseInt(numAccounts).toLocaleString())
+         } else {
+           console.log("API didn't return a number", arguments)
+         }
+       },
+       error: function(xhr) {
+         console.log("XHR went wrong", arguments)
+       }
+   })
+ }
+ // setup the automatic refresh
+ setInterval(refreshCounter, 300*1000);
+ // run the refresh function first time so we update the page
+ refreshCounter();
+</script>
+
+    </main>
+    
+<footer class="c-footer">
+  <div class="container">
+    <nav class="grid-row">
+      <div class="grid-col-12 grid-col-1-md">
+        <img class="logo" src="https://d33wubrfki0l68.cloudfront.net/673084cc885831461ab2cdd1151ad577cda6a49a/92a4d/static/images/favicon.png" width="38" alt="">
+      </div>
+      <div class="grid-col-6 grid-col-2-md">
+        <ul class="o-no-bullet-list">
+          <li><a class="c-footer__link" href="/about">About us</a></li>
+          <li><a class="c-footer__link" href="/blog">Blog</a></li>
+          <li><a class="c-footer__link" href="/press">Press</a></li>
+          <li><a class="c-footer__link" href="/careers">Careers</a></li>
+          <li><a href="https://web.monzo.com" class="c-footer__link">Lost your phone and card?</a></li>
+        </ul>
+      </div>
+      <div class="grid-col-6 grid-col-2-md">
+        <ul class="o-no-bullet-list">
+          <li><a class="c-footer__link" href="/community">Community</a></li>
+          <li><a class="c-footer__link" href="/transparency">Transparency</a></li>
+          <li><a class="c-footer__link" href="/blog/how-money-works">How money works</a></li>
+          <li><a class="c-footer__link" href="/tone-of-voice">Our tone of voice</a></li>
+        </ul>
+      </div>
+      <div class="grid-col-6 grid-col-2-md">
+        <ul class="o-no-bullet-list">
+          <li><a class="c-footer__link" href="/faq" aria-label="Frequently Asked Questions">FAQ</a></li>
+          <li><a class="c-footer__link" href="/legal/terms-and-conditions">Terms &amp; Conditions</a></li>
+          <li><a class="c-footer__link" href="/legal/fscs-information">FSCS information</a></li>
+          <li><a class="c-footer__link" href="/legal/privacy-policy">Privacy Policy</a></li>
+          <li><a class="c-footer__link" href="/legal/cookie-policy">Cookie Policy</a></li>
+        </ul>
+      </div>
+      <div class="grid-col-12 grid-col-5-md u-align-center u-align-right-md">
+        <p class="u-margin-top u-margin-top-none-md">
+          <a href="https://itunes.apple.com/gb/app/mondo/id1052238659" onclick="trackOutboundLink('https://itunes.apple.com/gb/app/mondo/id1052238659'); return false;" class="o-badge-ios" title="External link to the iOS app store">Download the Monzo app on iOS</a>
+          <a href="/-play-store-redirect" onclick="trackOutboundLink('/-play-store-redirect'); return false;" class="o-badge-android" title="External link to the Google play store">Download the Monzo app on Android</a>
+        </p>
+        <nav class="c-footer__social">
+          <a class="c-footer__social-link" href="https://twitter.com/monzo">
+            <img src="https://d33wubrfki0l68.cloudfront.net/7c4833acc25609b5b10eb8fa93eda189c6499943/375bf/static/images/twitter.svg" alt="Twitter">
+          </a>
+          <a class="c-footer__social-link" href="https://www.facebook.com/monzobank">
+            <img src="https://d33wubrfki0l68.cloudfront.net/78c691dfe4746cb8a7c995d185d9ae2303a81eb2/efc18/static/images/facebook.svg" alt="Facebook">
+          </a>
+          <a class="c-footer__social-link" href="https://www.linkedin.com/company/monzo-bank">
+            <img src="https://d33wubrfki0l68.cloudfront.net/736e5ecac35e0ff72b923877cfffef4abf57edce/73171/static/images/linkedin.svg" alt="LinkedIn">
+          </a>
+          <a class="c-footer__social-link" href="https://www.youtube.com/monzobank">
+            <img src="https://d33wubrfki0l68.cloudfront.net/35aba7d7de6c8cb76e23f3ea072cdda077a9ecf0/434bf/static/images/youtube.svg" alt="Youtube">
+          </a>
+        </nav>
+      </div>
+    </nav>
+  </div>
+  <div class="c-footer__disclaimer">
+    <div class="container">
+      <div class="grid-row">
+        <div class="grid-col-12">
+          <ul class="o-inline-list">
+            <li class="o-inline-list__item">Existing customers</li>
+            <li class="o-inline-list__item u-margin-left-large-md"><a class="c-footer__link" href="&#109;&#97;&#x69;&#108;&#116;&#111;&#x3a;&#x68;&#x65;&#108;&#112;&#64;&#x6d;&#111;&#x6e;&#122;&#111;&#46;&#x63;&#111;&#x6d;"><span class="__cf_email__" data-cfemail="3d5558514d7d5052534752135e5250">[email&#160;protected]</span></a></li>
+            <li class="o-inline-list__item u-margin-left-large-md">UK Tel:&nbsp;&nbsp;<a class="c-footer__link" href="tel:08008021281">0800 802 1281</a></li>
+            <li class="o-inline-list__item u-margin-left-large-md">Abroad Tel:&nbsp;&nbsp;<a class="c-footer__link" href="tel:+442038720620">+44 203 872 0620</a></li>
+          </ul>
+        </div>
+        <div class="grid-col-12 grid-col-8-md u-padding-top-md">
+          <p>
+            Monzo Bank Limited is a company registered in England and Wales (No. 09446231).
+            Monzo Bank Ltd is authorised by the Prudential Regulation Authority (PRA) and
+            regulated by the Financial Conduct Authority and the PRA.
+            Our Financial Services Register number is 730427.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    
+  <script data-cfasync="false" src="/cdn-cgi/scripts/f2bf09f8/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.ravenjs.com/3.12.0/raven.min.js"></script>
+  <script>
+    var GIT_COMMIT = '';
+    Raven
+      .config('https://af042385e52a4bbeb38110405e88a21f@sentry.io/144332', {
+        release: GIT_COMMIT,
+        tags: {
+          git_commit: GIT_COMMIT
+        }
+      })
+      .install();
+  </script>
+
+
+
+
+<script src="/bower_components/zepto/zepto.js"></script>
+
+
+  <!-- Libraries -->
+  <script src="/static/scripts/utils.js?v21"></script>
+  <script src="/static/scripts/config.js?v21"></script>
+  <script src="/static/scripts/third-party/lytics.js?v21"></script>
+  <script src="/static/scripts/cookie-policy.js?v21"></script>
+
+
+
+
+<!-- custom_js -->
+
+
+
+
+<script defer src="/static/scripts/main.js?v21"></script>
+<script defer src="/static/scripts/sticky-header.js?v21"></script>
+
+<!-- Facebook Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','//connect.facebook.net/en_US/fbevents.js');
+
+  fbq('init', '1442053056123622');
+  fbq('track', 'PageView');
+</script>
+<noscript>
+  <img
+    height="1"
+    width="1"
+    style="display: none;"
+    src="https://www.facebook.com/tr?id=1442053056123622&ev=PageView&noscript=1"
+    alt=""
+  />
+</noscript>
+<!-- End Facebook Pixel Code -->
+
+<!-- Twitter Conversion Tracking -->
+<script defer src="//platform.twitter.com/oct.js"></script>
+<!-- End Twitter Conversion Tracking -->
+
+<!-- Google Code for Remarketing Tag -->
+<!--
+ Remarketing tags may not be associated with personally identifiable information
+ or placed on pages related to sensitive categories. See more information and
+ instructions on how to setup the tag on: http://google.com/ads/remarketingsetup
+-->
+<script>
+  /* <![CDATA[ */
+  var google_conversion_id = 863263319;
+  var google_custom_params = window.google_tag_params;
+  var google_remarketing_only = true;
+  /* ]]> */
+</script>
+<!-- <script defer src="//www.googleadservices.com/pagead/conversion.js"></script> -->
+<noscript>
+  <div style="display:inline;">
+      <img
+        height="1"
+        width="1"
+        style="border-style: none;"
+        alt=""
+        src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/863263319/?guid=ON&amp;script=0"
+      />
+  </div>
+</noscript>
+<!-- End Google Code for Remarketing Tag -->
+
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1109810512370162',
+      xfbml      : true,
+      version    : 'v2.4'
+    });
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+
+  </body>
+</html>
