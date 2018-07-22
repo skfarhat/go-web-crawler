@@ -78,7 +78,6 @@ func Crawl(urls chan string, domain string, visited *sync.Map, wg *sync.WaitGrou
 	// Get URL to crawl from channel
 	defer wg.Done()
 	url := <-urls
-	visited.Store(url, true)
 	log.Printf("Crawl: %s, domain: %s\n", url, domain)
 
 	// Fetch URL contents
@@ -110,8 +109,8 @@ func Crawl(urls chan string, domain string, visited *sync.Map, wg *sync.WaitGrou
 
 	// Place child urls on the urls channel
 	for _, x := range children {
-		_, present :=  visited.Load(x)
-		if ! present {
+		if _, present := visited.Load(x); ! present {
+			visited.Store(x, true)
 			urls <- x
 			wg.Add(1)
 			// TODO: check for Crawlers that return error. 
@@ -131,6 +130,7 @@ func main() {
 	baseSite := "https://www.monzo.com/"
 	domain := "monzo.com"
 
+	visited.Store(baseSite, true)
 	urls <- baseSite
 	wg.Add(1)
 	// TODO: check for error returned from Crawl
