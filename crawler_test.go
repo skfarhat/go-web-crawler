@@ -44,8 +44,11 @@ func testArraysMatch(t *testing.T, arr1 []string, arr2 []string) int {
 // does not exist (when HTTP 404).
 func TestCrawl_fakeURLReturnsError(t *testing.T) {
 	const fakeURL string = "https://www.monzod19238u1923.com/"
-	urls := make(chan string)
-	var err = Crawl(fakeURL, urls, "")
+	var wg sync.WaitGroup
+	urls := make(chan string, 100)
+	urls <- fakeURL
+	wg.Add(1)
+	var err = Crawl(urls, "", nil, nil, &wg)
 	var _, ok = err.(Http404Error)
 	if !ok {
 		t.Errorf("No error or invalid error type thrown when provided url does not exist %s", fakeURL)
