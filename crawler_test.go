@@ -3,9 +3,11 @@ package main
 import (
 	// "fmt"
 "testing"
-	// "strings"
 "io/ioutil"
 )
+
+// TODO: test that TestFindAbsoluteLinks returns only monzo.com when provided the right domain
+// 
 
 // IMPROVEMENT: move this to utils package
 // Find returns the smallest index i at which x == a[i],
@@ -137,7 +139,7 @@ func TestFindAbsoluteLinks_findsAllCorrectly(t *testing.T) {
 	}
 
 	// Get absolute links and test function
-	results := FindAbsoluteLinks(string(data))
+	results := FindAbsoluteLinks(string(data), nil)
 	res := testArraysMatch(t, ABSOLUTE_LINKS[:], results)
 	if res == 1 { 
 		t.Errorf("Not all absolute links were found. Expecting (%d), found (%d)\n",
