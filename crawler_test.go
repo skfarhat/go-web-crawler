@@ -2,12 +2,12 @@ package main
 
 import (
 	// "fmt"
-"testing"
-"io/ioutil"
+	"io/ioutil"
+	"testing"
 )
 
 // TODO: test that TestFindAbsoluteLinks returns only monzo.com when provided the right domain
-// 
+//
 
 // IMPROVEMENT: move this to utils package
 // Find returns the smallest index i at which x == a[i],
@@ -23,7 +23,7 @@ func Find(a []string, x string) int {
 
 // Checks that the two string arrays have the same unordered contents
 // Returns 0 if they match, 1 lengths don't match, 2 if lengths match but not the contents
-func testArraysMatch(t *testing.T, arr1 []string, arr2[]string) int {
+func testArraysMatch(t *testing.T, arr1 []string, arr2 []string) int {
 
 	// 1. Check that len(arr1) = len(arr2)
 	if len(arr1) != len(arr2) {
@@ -100,9 +100,9 @@ func TestFindRelativeLinks_findsAllCorrectly(t *testing.T) {
 	results := FindRelativeLinks(string(data))
 	res := testArraysMatch(t, RELATIVE_LINKS[:], results)
 
-	if res == 1 { 
+	if res == 1 {
 		t.Errorf("Not all relative links were found. Expecting (%d), found (%d)\n",
-		len(RELATIVE_LINKS), len(results))
+			len(RELATIVE_LINKS), len(results))
 	} else if res == 2 {
 		t.Errorf("Relative links found don't match those expected.")
 	}
@@ -141,9 +141,9 @@ func TestFindAbsoluteLinks_findsAllCorrectly(t *testing.T) {
 	// Get absolute links and test function
 	results := FindAbsoluteLinks(string(data), nil)
 	res := testArraysMatch(t, ABSOLUTE_LINKS[:], results)
-	if res == 1 { 
+	if res == 1 {
 		t.Errorf("Not all absolute links were found. Expecting (%d), found (%d)\n",
-		len(ABSOLUTE_LINKS), len(results))
+			len(ABSOLUTE_LINKS), len(results))
 	} else if res == 2 {
 		t.Errorf("Absolute links found don't match those expected.")
 	}

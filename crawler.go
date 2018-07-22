@@ -24,7 +24,7 @@ func (e InvalidHTMLContent) Error() string {
 }
 
 // --------------------
-// Link handling 
+// Link handling
 // --------------------
 
 func FindRelativeLinks(html string) []string {
@@ -46,12 +46,12 @@ func FindRelativeLinks(html string) []string {
 func FindAbsoluteLinks(html string, domain *string) []string {
 
 	// If domain == nil, use a default domain matcher
-	var domainPattern string = "([^:\\/\\s]+)"
-	if domain == nil { 
-		domain = &domainPattern
+	var defaultDomainPattern string = "([^:\\/\\s]+)"
+	if domain == nil {
+		domain = &defaultDomainPattern
 	}
 
-	// Absolute pattern to match 
+	// Absolute pattern to match
 	// http[s] is required for the absolute link to match, otherwise we would match relative links as well.
 	// The domain may be specified by the caller of the function, otherwise a default domain pattern matcher is used.
 	var absolutePattern string = fmt.Sprintf("href=\"((http[s]?:\\/\\/)([^\\s\\/]*\\.)?%s(\\/[^\\s]*)*)\"", *domain)
@@ -59,7 +59,7 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 
 	re := regexp.MustCompile(absolutePattern)
 	allMatches := re.FindAllStringSubmatch(html, -1)
-	
+
 	b := make([]string, len(allMatches))
 
 	// take the first capturing group from matches
@@ -84,29 +84,28 @@ func Crawl(url string, urls chan string, domain string) error {
 	defer resp.Body.Close()
 
 	// Read HTML from Body
-	var bytes []byte
-	bytes, err = ioutil.ReadAll(resp.Body)
+	bytes, err := ioutil.ReadAll(resp.Body)
 	var html = string(bytes)
 	if err != nil {
 		return InvalidHTMLContent(url)
 	}
 
-	// Find relative links and convert them to absolute 
+	// Find relative links and convert them to absolute
 	children := FindRelativeLinks(html)
 	for i, x := range children {
 		children[i] = "https://" + domain + x
 	}
 
-	// Find absolute links 
+	// Find absolute links
 	absoluteLinks := FindAbsoluteLinks(html, &domain)
 
 	children = append(children, absoluteLinks...)
 
-	// Debug 
-	for i, x := range children { 
+	// Debug
+	for i, x := range children {
 		fmt.Println(i, x)
 	}
-	
+
 	// Add normalised urls to (urls) channel
 	return nil
 }
