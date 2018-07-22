@@ -4,6 +4,7 @@ import (
 	// "fmt"
 	"io/ioutil"
 	"testing"
+	"sync"
 )
 
 // TODO: test that TestFindAbsoluteLinks returns only monzo.com when provided the right domain
@@ -23,7 +24,7 @@ func Find(a []string, x string) int {
 
 // Checks that the two string arrays have the same unordered contents
 // Returns 0 if they match, 1 lengths don't match, 2 if lengths match but not the contents
-func testArraysMatch(t *testing.T, arr1 []string, arr2 []string) int {
+func checkArraysMatch(t *testing.T, arr1 []string, arr2 []string) int {
 
 	// 1. Check that len(arr1) = len(arr2)
 	if len(arr1) != len(arr2) {
@@ -38,21 +39,6 @@ func testArraysMatch(t *testing.T, arr1 []string, arr2 []string) int {
 		}
 	}
 	return 0
-}
-
-// Check that Crawl() returns an error when the provided URL
-// does not exist (when HTTP 404).
-func TestCrawl_fakeURLReturnsError(t *testing.T) {
-	const fakeURL string = "https://www.monzod19238u1923.com/"
-	var wg sync.WaitGroup
-	urls := make(chan string, 100)
-	urls <- fakeURL
-	wg.Add(1)
-	var err = Crawl(urls, "", nil, nil, &wg)
-	var _, ok = err.(Http404Error)
-	if !ok {
-		t.Errorf("No error or invalid error type thrown when provided url does not exist %s", fakeURL)
-	}
 }
 
 // Test that FindRelativeLinks finds all links that we expect it to find
@@ -101,7 +87,7 @@ func TestFindRelativeLinks_findsAllCorrectly(t *testing.T) {
 
 	// Get relative links and test function
 	results := FindRelativeLinks(string(data))
-	res := testArraysMatch(t, RELATIVE_LINKS[:], results)
+	res := checkArraysMatch(t, RELATIVE_LINKS[:], results)
 
 	if res == 1 {
 		t.Errorf("Not all relative links were found. Expecting (%d), found (%d)\n",
@@ -143,7 +129,7 @@ func TestFindAbsoluteLinks_findsAllCorrectly(t *testing.T) {
 
 	// Get absolute links and test function
 	results := FindAbsoluteLinks(string(data), nil)
-	res := testArraysMatch(t, ABSOLUTE_LINKS[:], results)
+	res := checkArraysMatch(t, ABSOLUTE_LINKS[:], results)
 	if res == 1 {
 		t.Errorf("Not all absolute links were found. Expecting (%d), found (%d)\n",
 			len(ABSOLUTE_LINKS), len(results))
@@ -151,3 +137,25 @@ func TestFindAbsoluteLinks_findsAllCorrectly(t *testing.T) {
 		t.Errorf("Absolute links found don't match those expected.")
 	}
 }
+
+func TestCrawlerNew(t *testing.T) {
+	var crawler Crawler;
+	crawler.New("https://monzo.com")
+}
+
+func TestCrawlerNew_fromNullPointer(t *testing.T) {
+	var crawler *Crawler;
+	crawler = crawler.New("https://monzo.com")
+	if crawler == nil {
+		t.Errorf("Failed to create Crawler from nil pointer")
+	}
+}
+
+// Test that PrintSitemap doesn't fail horribly in simple cases 
+func TestPrintSitemap_noFailOnEmpty(t *testing.T) {
+	var crawler Crawler;
+	crawler.New("https://monzo.com")
+	crawler.PrintSitemap()
+}
+
+

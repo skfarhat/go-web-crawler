@@ -25,6 +25,150 @@ func (e InvalidHTMLContent) Error() string {
 }
 
 // --------------------
+// Crawler 
+// --------------------
+
+// Used for 'urls' buffered channel
+const MAX_CHAN_URLS int = 100
+
+type CrawlerI interface {
+	New(baseSite string)
+	SpawnCrawler()
+	Wait()
+	PrintSitemap()
+}
+
+type Crawler struct {
+
+	// First site to crawl 
+	baseSite string 
+
+	// Domain name encompassing all crawls, this will extracted from 'baseSite' in New()
+	domain string
+
+	// urls channel used by all goroutines to add new URLs to parse
+	urls chan string
+
+	// Cache sites that have been visited 
+	// key 		--> value 
+	// string 	--> bool
+	// "site"	--> true
+	visited sync.Map
+
+	// Cache relationship between visited sites, used to construct and print sitemap
+	// key 		--> value
+	// (string) --> []string{}
+	// "parent" --> ["child1", "child2"]
+	sitemap sync.Map
+	
+	// Used to wait for all goroutines to complete
+	wg sync.WaitGroup
+}
+
+func (c *Crawler) New(baseSite string) *Crawler {
+	if c == nil {
+		c = new(Crawler)
+	}
+
+	log.Printf("in New %s\n", baseSite)	
+
+	// e.g. https://monzo.com/
+	c.baseSite = baseSite
+
+	// TODO: extract the domain from baseSite. Hardcoded for now. 
+	c.domain = "monzo.com"
+
+	// create buffered channel
+	c.urls = make(chan string, MAX_CHAN_URLS)
+	return c
+}
+
+func (c *Crawler) Start() {
+	c.visited.Store(c.baseSite, true)
+	c.urls <- c.baseSite
+	c.wg.Add(1)
+	
+	// TODO: check for error returned from Crawl
+	go c.Crawl()
+}
+
+// TODO: what happens when an error is spit out by Crawl?
+// the link is considered handled even though it is not traversed.
+
+// Crawl site by visiting only local pages to the domain
+// Returns error if any occured, nil if none
+func (c *Crawler) Crawl() error {
+
+	// Get URL to crawl from channel
+	defer c.wg.Done()
+	url := <-c.urls
+	// log.Printf("Crawl: %s\n", url)
+
+	// Fetch URL contents
+	resp, err := http.Get(url)
+	if err != nil {
+		// TODO: add the url string to list of broken URLs
+		// IMPROVEMENT: pass the err to Http404Error so that we have a reference to the original
+		return Http404Error(url)
+	}
+	defer resp.Body.Close()
+
+	// Read HTML from Body
+	bytes, err := ioutil.ReadAll(resp.Body)
+	var html = string(bytes)
+	if err != nil {
+		return InvalidHTMLContent(url)
+	}
+
+	// Find relative links and convert them to absolute
+	children := FindRelativeLinks(html)
+	for i, x := range children {
+		children[i] = "https://" + c.domain + x
+	}
+
+	// Find absolute links
+	absoluteLinks := FindAbsoluteLinks(html, &c.domain)
+
+	children = append(children, absoluteLinks...)
+	c.sitemap.Store(url, children)
+
+	// sitemap.LoadOrStore(url, []string{})
+	// Place child urls on the urls channel
+	for _, x := range children {
+		if _, present := c.visited.Load(x); !present {
+			c.visited.Store(x, true)
+			// sitemap.Store(url, x)
+			c.urls <- x
+			c.wg.Add(1)
+			// TODO: check for Crawlers that return error.
+			go c.Crawl()
+		}
+	}
+
+	// No error
+	return nil
+}
+
+// Wait for all goroutines to finish - blocking function
+func (c *Crawler) Wait() {
+	c.wg.Wait()
+}
+
+func (c *Crawler) PrintSitemap() {
+	c.sitemap.Range(func(k, v interface{}) bool {
+		v1, ok := v.([]string)
+		if !ok {
+			return false
+		}
+		fmt.Printf("\n%s\n", k)
+		for _, child := range v1 {
+			fmt.Printf("  --> %s\n", child)
+		}
+		return true
+	})
+}
+
+// --------------------
 // Link handling
 // --------------------
 
@@ -71,95 +215,108 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 	return b
 }
 
-// TODO: what happens when an error is spit out by Crawl?
-// the link is considered handled even though it is not traversed.
+// // TODO: what happens when an error is spit out by Crawl?
+// // the link is considered handled even though it is not traversed.
 
-// Crawl site by visiting only local pages to the domain
-// Returns error if any occured, nil if none
-func Crawl(urls chan string, domain string, visited *sync.Map, sitemap *sync.Map, wg *sync.WaitGroup) error {
+// // Crawl site by visiting only local pages to the domain
+// // Returns error if any occured, nil if none
+// func Crawl(urls chan string, domain string, visited *sync.Map, sitemap *sync.Map, wg *sync.WaitGroup) error {
 
-	// Get URL to crawl from channel
-	defer wg.Done()
-	url := <-urls
-	// log.Printf("Crawl: %s\n", url)
+// 	// Get URL to crawl from channel
+// 	defer wg.Done()
+// 	url := <-urls
+// 	// log.Printf("Crawl: %s\n", url)
 
-	// Fetch URL contents
-	resp, err := http.Get(url)
-	if err != nil {
-		// TODO: add the url string to list of broken URLs
-		// IMPROVEMENT: pass the err to Http404Error so that we have a reference to the original
-		return Http404Error(url)
-	}
-	defer resp.Body.Close()
+// 	// Fetch URL contents
+// 	resp, err := http.Get(url)
+// 	if err != nil {
+// 		// TODO: add the url string to list of broken URLs
+// 		// IMPROVEMENT: pass the err to Http404Error so that we have a reference to the original
+// 		return Http404Error(url)
+// 	}
+// 	defer resp.Body.Close()
 
-	// Read HTML from Body
-	bytes, err := ioutil.ReadAll(resp.Body)
-	var html = string(bytes)
-	if err != nil {
-		return InvalidHTMLContent(url)
-	}
+// 	// Read HTML from Body
+// 	bytes, err := ioutil.ReadAll(resp.Body)
+// 	var html = string(bytes)
+// 	if err != nil {
+// 		return InvalidHTMLContent(url)
+// 	}
 
-	// Find relative links and convert them to absolute
-	children := FindRelativeLinks(html)
-	for i, x := range children {
-		children[i] = "https://" + domain + x
-	}
+// 	// Find relative links and convert them to absolute
+// 	children := FindRelativeLinks(html)
+// 	for i, x := range children {
+// 		children[i] = "https://" + domain + x
+// 	}
 
-	// Find absolute links
-	absoluteLinks := FindAbsoluteLinks(html, &domain)
+// 	// Find absolute links
+// 	absoluteLinks := FindAbsoluteLinks(html, &domain)
 
-	children = append(children, absoluteLinks...)
-	sitemap.Store(url, children)
+// 	children = append(children, absoluteLinks...)
+// 	sitemap.Store(url, children)
 
-	// sitemap.LoadOrStore(url, []string{})
-	// Place child urls on the urls channel
-	for _, x := range children {
-		if _, present := visited.Load(x); !present {
-			visited.Store(x, true)
-			// sitemap.Store(url, x)
-			urls <- x
-			wg.Add(1)
-			// TODO: check for Crawlers that return error.
-			go Crawl(urls, domain, visited, sitemap, wg)
-		}
-	}
+// 	// sitemap.LoadOrStore(url, []string{})
+// 	// Place child urls on the urls channel
+// 	for _, x := range children {
+// 		if _, present := visited.Load(x); !present {
+// 			visited.Store(x, true)
+// 			// sitemap.Store(url, x)
+// 			urls <- x
+// 			wg.Add(1)
+// 			// TODO: check for Crawlers that return error.
+// 			go Crawl(urls, domain, visited, sitemap, wg)
+// 		}
+// 	}
 
-	// No error
-	return nil
-}
+// 	// No error
+// 	return nil
+// }
 
-func printSiteMap(sitemap *sync.Map) {
-	sitemap.Range(func(k, v interface{}) bool {
-		v1, ok := v.([]string)
-		if !ok {
-			fmt.Printf("Unexpected error!!\n")
-			return false
-		}
-		fmt.Printf("\n%s\n", k)
-		for _, child := range v1 {
-			fmt.Printf("  --> %s\n", child)
-		}
-		return true
-	})
-}
+// func printSiteMap(sitemap *sync.Map) {
+// 	sitemap.Range(func(k, v interface{}) bool {
+// 		v1, ok := v.([]string)
+// 		if !ok {
+// 			fmt.Printf("Unexpected error!!\n")
+// 			return false
+// 		}
+// 		fmt.Printf("\n%s\n", k)
+// 		for _, child := range v1 {
+// 			fmt.Printf("  --> %s\n", child)
+// 		}
+// 		return true
+// 	})
+// }
 
 func main() {
-	var wg sync.WaitGroup
-	var visited, sitemap sync.Map
 
-	urls := make(chan string, 100) // create buffered channel
-	baseSite := "https://www.monzo.com/"
-	domain := "monzo.com"
+	// Implementation 1
+	// ----------------
 
-	visited.Store(baseSite, true)
-	urls <- baseSite
-	wg.Add(1)
-	// TODO: check for error returned from Crawl
-	go Crawl(urls, domain, &visited, &sitemap, &wg)
+	// var wg sync.WaitGroup
+	// var visited, sitemap sync.Map
 
-	// Wait for all Crawlers to finish
-	wg.Wait()
+	// urls := make(chan string, 100) // create buffered channel
+	// baseSite := "https://www.monzo.com/"
+	// domain := "monzo.com"
 
-	printSiteMap(&sitemap)
-	log.Printf("Crawler done. Exiting main.")
+	// visited.Store(baseSite, true)
+	// urls <- baseSite
+	// wg.Add(1)
+	// // TODO: check for error returned from Crawl
+	// go Crawl(urls, domain, &visited, &sitemap, &wg)
+
+	// // Wait for all Crawlers to finish
+	// wg.Wait()
+
+	// printSiteMap(&sitemap)
+
+
+	// Implementation 2 
+	// ----------------
+	var c *Crawler
+	c = c.New("https://monzo.com")
+	c.Start() 
+	c.Wait() 
+	c.PrintSitemap()
+	// log.Printf("Crawler done. Exiting main.")
 }
