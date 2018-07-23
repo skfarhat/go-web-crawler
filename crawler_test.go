@@ -1,9 +1,9 @@
 package main
 
 import (
+	"io"
 	"io/ioutil"
 	"log"
-	// "net/url"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -96,25 +96,102 @@ func TestPrintSitemapFlattest_doesNotCrashIfEmpty(t *testing.T) {
 	c.PrintSitemapFlattest()
 }
 
+func urlToHTMLContent(url string) (string, error) {
+	const ROOT_FOLDER string = "test_site/"
+	var fileToRead string
+	switch url {
+	case "/":
+		fileToRead = ROOT_FOLDER + "index.html"
+	case "":
+		fileToRead = ROOT_FOLDER + "index.html"
+	default:
+		fileToRead = ROOT_FOLDER + url
+	}
+
+	content, err := ioutil.ReadFile(fileToRead)
+	return string(content), err
+
+}
+
 // Test Crawler works for test site
 func TestCrawlSampleSite(t *testing.T) {
+	log.Printf("Starting TestCrawlSampleSite")
 
+	// TEST SETUP
+	// ----------
+
+	// Spawn a test server that returns static content in test_site
+	// Note that test_site must be in the same directory as this script.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("path is %s\n", r.URL.Path)
-		// fmt.FPrintln(w, "Hello, client")
+
+		// Load the HTML content of the file address by the path
+		content, err := urlToHTMLContent(r.URL.Path)
+		if err != nil {
+			w.WriteHeader(404)
+		}
+		io.WriteString(w, content)
 	}))
 	defer ts.Close()
 
-	// TODO: construct the URL here 
-	res, err := http.Get(ts.URL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	greeting, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Start crawler
+	var c Crawler
+	c.Init(ts.URL)
+	c.Start()
+	c.Wait()
 
-	log.Printf("%s", greeting)
+	c.PrintSitemapFlat()
+
+	// RUN TESTS
+	// ---------
+	t.Run("TestPages4,5AreAbsent", func(t *testing.T) {
+
+		// Page 4
+		if _, ok := c.sitemap.Load(ts.URL + "/page4.html"); ok {
+			t.Errorf("Sitemap contains link (page4.html) which it shouldn't.")
+		}
+
+		// Page 5
+		if _, ok := c.sitemap.Load(ts.URL + "/page5.html"); ok {
+			t.Errorf("Sitemap contains link (page5.html) which it shouldn't.")
+		}
+	})
+
+	t.Run("TestPages1,2,3,11,22a,22bArePresent", func(t *testing.T) {
+
+		// Page 1
+		if _, ok := c.sitemap.Load(ts.URL + "/page1.html"); !ok {
+			t.Errorf("Sitemap contains link (page1.html) which it shouldn't.")
+		}
+
+		// Page 2
+		if _, ok := c.sitemap.Load(ts.URL + "/page2.html"); !ok {
+			t.Errorf("Sitemap contains link (page2.html) which it shouldn't.")
+		}
+
+		// Page 3
+		if _, ok := c.sitemap.Load(ts.URL + "/page3.html"); !ok {
+			t.Errorf("Sitemap contains link (page3.html) which it shouldn't.")
+		}
+
+		// Page 11
+		if _, ok := c.sitemap.Load(ts.URL + "/page11.html"); !ok {
+			t.Errorf("Sitemap contains link (page11.html) which it shouldn't.")
+		}
+
+		// Page 22a
+		if _, ok := c.sitemap.Load(ts.URL + "/page22a.html"); !ok {
+			t.Errorf("Sitemap contains link (page22a.html) which it shouldn't.")
+		}
+
+		// Page 22b
+		if _, ok := c.sitemap.Load(ts.URL + "/page22b.html"); !ok {
+			t.Errorf("Sitemap contains link (page22b.html) which it shouldn't.")
+		}
+	})
+
+	// TEARDOWN
+	// --------
+
+	// Teardown here..
+
 }
