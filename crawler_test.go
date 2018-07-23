@@ -137,14 +137,14 @@ func TestFindAbsoluteLinks_findsAllCorrectly(t *testing.T) {
 	}
 }
 
-func TestCrawlerNew(t *testing.T) {
+func TestCrawlerInit(t *testing.T) {
 	var crawler Crawler
-	crawler.New("https://monzo.com")
+	crawler.Init("https://monzo.com")
 }
 
-func TestCrawlerNew_fromNullPointer(t *testing.T) {
+func TestCrawlerInit_fromNullPointer(t *testing.T) {
 	var crawler *Crawler
-	crawler = crawler.New("https://monzo.com")
+	crawler = crawler.Init("https://monzo.com")
 	if crawler == nil {
 		t.Errorf("Failed to create Crawler from nil pointer")
 	}
@@ -153,20 +153,20 @@ func TestCrawlerNew_fromNullPointer(t *testing.T) {
 // Test that PrintSitemapFlat doesn't fail horribly in simple cases
 func TestPrintSitemapFlat_noFailOnEmpty(t *testing.T) {
 	var crawler Crawler
-	crawler.New("https://monzo.com")
+	crawler.Init("https://monzo.com")
 	crawler.PrintSitemapFlat()
 }
 
 // Test that PrintSitemapHierarchy doesn't fail horribly in simple cases
 func TestPrintSitemapHierarchy_noFailOnEmpty(t *testing.T) {
 	var crawler Crawler
-	crawler.New("https://monzo.com")
+	crawler.Init("https://monzo.com")
 	crawler.PrintSitemapHierarchy()
 }
 
 func TestCrawlerMain(t *testing.T) {
 	var c *Crawler
-	c = c.New("https://monzo.com")
+	c = c.Init("https://monzo.com")
 	c.Start()
 	c.Wait()
 	c.PrintSitemapHierarchy()
