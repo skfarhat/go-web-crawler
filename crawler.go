@@ -43,6 +43,12 @@ func (e InvalidURL) Error() string {
 // Crawler
 // --------------------
 
+// Stat struct storing the elapsed time of the total crawl operation and that of HTTP.GET
+type CrawlStat struct {
+	getTime time.Duration
+	totalTime time.Duration
+}
+
 // Used for 'urls' buffered channel
 const MAX_CHAN_URLS int = 100
 
@@ -78,6 +84,9 @@ type Crawler struct {
 
 	// Slice initialised in New with the list of suffixes that the crawler should ignore
 	ignoreSuffixes []string
+
+	// Stores statistics about each URL crawled
+	stats sync.Map
 }
 
 // Initialise the Crawler
@@ -91,6 +100,9 @@ func (c *Crawler) Init(baseSite string) error {
 	if e != nil || len(u.Host) == 0 {
 		return InvalidURL(baseSite)
 	}
+
+	// Reset the map 
+	c.stats = sync.Map{}
 
 	// e.g. https://monzo.com/
 	c.baseSite = baseSite
@@ -149,21 +161,21 @@ func (c *Crawler) Crawl() error {
 	// Fetch URL contents
 	startHTTPGET := time.Now()
 	resp, err := http.Get(url)
-	if err != nil {
+	if err != nil  || resp.StatusCode >= 300 {
 		// TODO LATER: add the url string to list of broken URLs
+		c.visited.Delete(url)
+		resp.Body.Close()
 		return Http404Error(url)
 	}
-	elapsedHTTPGET := time.Since(startHTTPGET)
 	defer resp.Body.Close()
+	elapsedHTTPGET := time.Since(startHTTPGET)
 
 	// Read HTML from Body
-	startReadBody := time.Now()
 	bytes, err := ioutil.ReadAll(resp.Body)
 	var html = string(bytes)
 	if err != nil {
 		return InvalidHTMLContent(url)
 	}
-	elapsedReadBody := time.Since(startReadBody)
 
 	// Find relative links and convert them to absolute
 	children := FindRelativeLinks(html)
@@ -192,10 +204,9 @@ func (c *Crawler) Crawl() error {
 	// Increment number of pages crawled
 	c.totalCrawls++
 
-	if *verbose {
-		defer log.Printf("Crawl #%d (%s)  took %s. GET(%s), HTML.Read(%s)\n",
-			c.totalCrawls, url, time.Since(start1), elapsedHTTPGET, elapsedReadBody)
-	}
+	// Compute total time taken and store stats 
+	totalTime := time.Since(start1)
+	c.stats.Store(url, CrawlStat{totalTime: totalTime , getTime: elapsedHTTPGET})
 
 	// No error
 	return nil
@@ -293,6 +304,11 @@ func main() {
 	elapsed := time.Since(start)
 
 	if *verbose {
+		c.stats.Range(func(url, stats interface{}) bool {
+			stat := stats.(CrawlStat)
+			log.Printf("Crawl (%s)  took %s. GET(%s)\n", url, stat.totalTime, stat.getTime)
+			return true
+		})
 		log.Printf("%d Crawls took %s\n", c.totalCrawls, elapsed)
 	}
 
