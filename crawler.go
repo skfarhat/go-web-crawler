@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"sync"
+	"time"
 )
 
 // ---------------------
@@ -38,6 +39,8 @@ type CrawlerI interface {
 	PrintSitemap()
 }
 
+// Crawler has not been tested with successive crawls yet, 
+// safest is to create a new Crawler and operate with it 
 type Crawler struct {
 
 	// First site to crawl
@@ -63,6 +66,8 @@ type Crawler struct {
 
 	// Used to wait for all goroutines to complete
 	wg sync.WaitGroup
+
+	totalCrawls int
 }
 
 func (c *Crawler) New(baseSite string) *Crawler {
@@ -102,27 +107,32 @@ func (c *Crawler) Start() {
 // Crawl site by visiting only local pages to the domain
 // Returns error if any occured, nil if none
 func (c *Crawler) Crawl() error {
+	start1 := time.Now()
+	c.totalCrawls++
 
 	// Get URL to crawl from channel
 	defer c.wg.Done()
 	url := <-c.urls
-	// log.Printf("Crawl: %s\n", url)
 
 	// Fetch URL contents
+	startHTTPGET := time.Now()
 	resp, err := http.Get(url)
 	if err != nil {
 		// TODO: add the url string to list of broken URLs
 		// IMPROVEMENT: pass the err to Http404Error so that we have a reference to the original
 		return Http404Error(url)
 	}
+	elapsedHTTPGET := time.Since(startHTTPGET)
 	defer resp.Body.Close()
 
 	// Read HTML from Body
+	startReadBody := time.Now()
 	bytes, err := ioutil.ReadAll(resp.Body)
 	var html = string(bytes)
 	if err != nil {
 		return InvalidHTMLContent(url)
 	}
+	elapsedReadBody := time.Since(startReadBody)
 
 	// Find relative links and convert them to absolute
 	children := FindRelativeLinks(html)
@@ -146,6 +156,8 @@ func (c *Crawler) Crawl() error {
 		}
 	}
 
+	defer log.Printf("Crawl #%d (%s)  took %s. GET(%s), HTML.Read(%s)\n", 
+		c.totalCrawls, url, time.Since(start1), elapsedHTTPGET, elapsedReadBody)
 	// No error
 	return nil
 }
@@ -250,10 +262,26 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 
 func main() {
 	var c *Crawler
+    
+    // Crawl and measure time taken 
+    start1 := time.Now()
 	c = c.New("https://monzo.com")
 	c.Start()
 	c.Wait()
-	c.PrintSitemapHierarchy()
-	c.PrintSitemapFlat()
+	elapsed1 := time.Since(start1)
+	log.Printf("%d Crawls took %s\n", c.totalCrawls, elapsed1)
+
+	// Print Sitemap Hierarchy
+	// start2 := time.Now()
+	// c.PrintSitemapHierarchy()
+	// elapsed2 := time.Since(start2)
+	// log.Printf("PrintSitemapHierarchy took %s\n", elapsed2)
+	
+	// Print Sitemap Flat 
+	// start3 := time.Now()
+	// c.PrintSitemapFlat()
+	// elapsed3 := time.Since(start3)
+	// log.Printf("PrintSitemapHierarchy took %s\n", elapsed3)
+
 	log.Printf("Crawler done. Exiting main.")
 }
