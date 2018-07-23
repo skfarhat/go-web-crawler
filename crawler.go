@@ -54,13 +54,11 @@ type Crawler struct {
 	urls chan string
 
 	// Cache sites that have been visited
-	// key 		--> value
 	// string 	--> bool
 	// "site"	--> true
 	visited sync.Map
 
 	// Cache relationship between visited sites, used to construct and print sitemap
-	// key 		--> value
 	// string --> []string{}
 	// "parent" --> ["child1", "child2"]
 	sitemap sync.Map
@@ -111,11 +109,11 @@ func (c *Crawler) addSite(site string) {
 // Begin processing sites
 func (c *Crawler) Start() {
 	c.addSite(c.baseSite)
-
-	// TODO: check for error returned from Crawl
 	go c.Crawl()
 }
 
+// Checks if the provided URL ends with any of the suffixes defined in ignoreSuffixes.
+// Returns true if it does, otherwise false.
 func (c *Crawler) matchesIgnoreSuffix(url string) bool {
 
 	for _, ext := range c.ignoreSuffixes {
@@ -126,9 +124,6 @@ func (c *Crawler) matchesIgnoreSuffix(url string) bool {
 	return false
 }
 
-// TODO: what happens when an error is spit out by Crawl?
-// the link is considered handled even though it is not traversed.
-
 // Crawl site by visiting only local pages to the domain
 // Returns error if any occured, nil if none
 func (c *Crawler) Crawl() error {
@@ -138,7 +133,7 @@ func (c *Crawler) Crawl() error {
 	defer c.wg.Done()
 	url := <-c.urls
 
-	// if URL matches any of the 'ignore' suffixes, return.
+	// If URL matches any of the 'ignore' suffixes, return.
 	// We don't want to crawl it.
 	if c.matchesIgnoreSuffix(url) {
 		return nil
@@ -148,7 +143,7 @@ func (c *Crawler) Crawl() error {
 	startHTTPGET := time.Now()
 	resp, err := http.Get(url)
 	if err != nil {
-		// TODO: LATER: add the url string to list of broken URLs
+		// TODO LATER: add the url string to list of broken URLs
 		return Http404Error(url)
 	}
 	elapsedHTTPGET := time.Since(startHTTPGET)
@@ -172,20 +167,22 @@ func (c *Crawler) Crawl() error {
 	// Find absolute links
 	absoluteLinks := FindAbsoluteLinks(html, &c.domain)
 
+	// Concatenate relative and absolute children together
 	children = append(children, absoluteLinks...)
+
+	// Store URL in sitemap along with its children
+	// Storing the children helps reconstruct the hierarchy if needed
 	c.sitemap.Store(url, children)
 
-	// sitemap.LoadOrStore(url, []string{})
 	// Place child urls on the urls channel
 	for _, x := range children {
 		if _, present := c.visited.Load(x); !present {
 			c.addSite(x)
-
-			// TODO: check for Crawlers that return error.
 			go c.Crawl()
 		}
 	}
 
+	// Increment number of pages crawled
 	c.totalCrawls++
 
 	defer log.Printf("Crawl #%d (%s)  took %s. GET(%s), HTML.Read(%s)\n",
@@ -199,37 +196,16 @@ func (c *Crawler) Wait() {
 	c.wg.Wait()
 }
 
-func (c *Crawler) printRecurse(site string, indent int, visited map[string]bool) {
-	visited[site] = true
-
-	children, ok := c.sitemap.Load(site)
-
-	if !ok {
-		return
-	}
-
-	for _, child := range children.([]string) {
-
-		// Print child
-		for i := 0; i < indent; i++ {
-			fmt.Printf(" ")
-		}
-		fmt.Printf("%s\n", child)
-
-		// If child has not been visited do it
-		if _, ok := visited[child]; !ok {
-			c.printRecurse(child, indent+1, visited)
-		}
-	}
+// Print all crawled URLs and print them without any hierarchical relationship to their
+// children
+func (c *Crawler) PrintSitemapFlattest() {
+	c.sitemap.Range(func(k, v interface{}) bool {
+		fmt.Println(k)
+		return true
+	})
 }
 
-func (c *Crawler) PrintSitemapHierarchy() {
-	visited := make(map[string]bool)
-
-	fmt.Println(c.baseSite)
-	c.printRecurse(c.baseSite, 1, visited)
-}
-
+// Print all sites that have been crawled along with their children.
 func (c *Crawler) PrintSitemapFlat() {
 	c.sitemap.Range(func(k, v interface{}) bool {
 		v1, ok := v.([]string)
@@ -248,7 +224,7 @@ func (c *Crawler) PrintSitemapFlat() {
 // Link handling
 // --------------------
 
-// TODO: look into using 'urls' package
+// TODO LATER: look into using 'net/url' package instead
 
 func FindRelativeLinks(html string) []string {
 	const relativePattern string = "href=\"(/[-\\w\\d_/\\.]+)\""
@@ -304,17 +280,13 @@ func main() {
 	elapsed1 := time.Since(start1)
 	log.Printf("%d Crawls took %s\n", c.totalCrawls, elapsed1)
 
-	// Print Sitemap Hierarchy
-	// start2 := time.Now()
-	// c.PrintSitemapHierarchy()
-	// elapsed2 := time.Since(start2)
-	// log.Printf("PrintSitemapHierarchy took %s\n", elapsed2)
+	// Print Sitemap Flattest
+	// ----------------------
+	c.PrintSitemapFlattest()
 
 	// Print Sitemap Flat
-	// start3 := time.Now()
+	// ------------------
 	// c.PrintSitemapFlat()
-	// elapsed3 := time.Since(start3)
-	// log.Printf("PrintSitemapHierarchy took %s\n", elapsed3)
 
 	log.Printf("Crawler done. Exiting main.")
 }
