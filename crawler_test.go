@@ -3,7 +3,6 @@ package main
 import (
 	// "fmt"
 	"io/ioutil"
-	"sync"
 	"testing"
 )
 
@@ -151,9 +150,25 @@ func TestCrawlerNew_fromNullPointer(t *testing.T) {
 	}
 }
 
-// Test that PrintSitemap doesn't fail horribly in simple cases
-func TestPrintSitemap_noFailOnEmpty(t *testing.T) {
+// Test that PrintSitemapFlat doesn't fail horribly in simple cases
+func TestPrintSitemapFlat_noFailOnEmpty(t *testing.T) {
 	var crawler Crawler
 	crawler.New("https://monzo.com")
-	crawler.PrintSitemap()
+	crawler.PrintSitemapFlat()
+}
+
+// Test that PrintSitemapHierarchy doesn't fail horribly in simple cases
+func TestPrintSitemapHierarchy_noFailOnEmpty(t *testing.T) {
+	var crawler Crawler
+	crawler.New("https://monzo.com")
+	crawler.PrintSitemapHierarchy()
+}
+
+func TestCrawlerMain(t *testing.T) {
+	var c *Crawler
+	c = c.New("https://monzo.com")
+	c.Start()
+	c.Wait()
+	c.PrintSitemapHierarchy()
+	c.PrintSitemapFlat()
 }
