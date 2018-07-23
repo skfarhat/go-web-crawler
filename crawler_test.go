@@ -10,6 +10,17 @@ import (
 	"time"
 )
 
+// Find returns the smallest index i at which x == a[i],
+// or -1 if there is no such index.
+func Find(a []string, x string) int {
+	for i, n := range a {
+		if x == n {
+			return i
+		}
+	}
+	return -1
+}
+
 // ---------------------------
 // Test Error implementations
 // ---------------------------
@@ -139,10 +150,12 @@ func TestCrawlSampleSite(t *testing.T) {
 	c.Start()
 	c.Wait()
 
-	c.PrintSitemapFlat()
+	// c.PrintSitemapFlat()
 
 	// RUN TESTS
 	// ---------
+
+	// Test that absent URLs are indeed absent
 	t.Run("TestPages4,5AreAbsent", func(t *testing.T) {
 
 		// Page 4
@@ -156,16 +169,21 @@ func TestCrawlSampleSite(t *testing.T) {
 		}
 	})
 
+	// Test all present URLs are indeed present
 	t.Run("TestPages1,2,3,11,22a,22bArePresent", func(t *testing.T) {
 
 		// Page 1
-		if _, ok := c.sitemap.Load(ts.URL + "/page1.html"); !ok {
+		if page1Children, ok := c.sitemap.Load(ts.URL + "/page1.html"); !ok {
 			t.Errorf("Sitemap contains link (page1.html) which it shouldn't.")
+		} else if i := Find(page1Children.([]string), ts.URL + "/page11.html"); i < 0 {
+			t.Errorf("page11.html is not child of page1.html as it should be.")
 		}
 
 		// Page 2
-		if _, ok := c.sitemap.Load(ts.URL + "/page2.html"); !ok {
+		if page2Children, ok := c.sitemap.Load(ts.URL + "/page2.html"); !ok {
 			t.Errorf("Sitemap contains link (page2.html) which it shouldn't.")
+		} else if i := Find(page2Children.([]string), ts.URL+ "/page22a.html"); i < 0 {
+			t.Errorf("page22a.html is not child of page2.html as it should be.")
 		}
 
 		// Page 3
@@ -179,8 +197,10 @@ func TestCrawlSampleSite(t *testing.T) {
 		}
 
 		// Page 22a
-		if _, ok := c.sitemap.Load(ts.URL + "/page22a.html"); !ok {
+		if page22aChildren, ok := c.sitemap.Load(ts.URL + "/page22a.html"); !ok {
 			t.Errorf("Sitemap contains link (page22a.html) which it shouldn't.")
+		} else if i := Find(page22aChildren.([]string), ts.URL+ "/page22b.html"); i < 0 {
+			t.Errorf("page22b.html is not child of page22a.html as it should be.")
 		}
 
 		// Page 22b
