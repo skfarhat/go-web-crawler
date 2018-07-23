@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 )
@@ -29,18 +30,12 @@ func (e InvalidHTMLContent) Error() string {
 // Crawler
 // --------------------
 
+// TODO: what happens if we raise this?
 // Used for 'urls' buffered channel
 const MAX_CHAN_URLS int = 100
 
-type CrawlerI interface {
-	New(baseSite string)
-	SpawnCrawler()
-	Wait()
-	PrintSitemap()
-}
-
-// Crawler has not been tested with successive crawls yet, 
-// safest is to create a new Crawler and operate with it 
+// Crawler has not been tested with successive crawls yet,
+// safest is to create a new Crawler and operate with it
 type Crawler struct {
 
 	// First site to crawl
@@ -60,14 +55,18 @@ type Crawler struct {
 
 	// Cache relationship between visited sites, used to construct and print sitemap
 	// key 		--> value
-	// (string) --> []string{}
+	// string --> []string{}
 	// "parent" --> ["child1", "child2"]
 	sitemap sync.Map
 
 	// Used to wait for all goroutines to complete
 	wg sync.WaitGroup
 
+	// Counts the number of websites that have been crawled
 	totalCrawls int
+
+	// Slice initialised in New with the list of suffixes that the crawler should ignore
+	ignoreSuffixes []string
 }
 
 func (c *Crawler) New(baseSite string) *Crawler {
@@ -81,8 +80,12 @@ func (c *Crawler) New(baseSite string) *Crawler {
 	// TODO: extract the domain from baseSite. Hardcoded for now.
 	c.domain = "monzo.com"
 
-	// create buffered channel
+	// Create buffered channel
 	c.urls = make(chan string, MAX_CHAN_URLS)
+
+	// Initialise list of ignore suffixes
+	c.ignoreSuffixes = []string{"pdf", "png", "jpeg"}
+
 	return c
 }
 
@@ -101,6 +104,16 @@ func (c *Crawler) Start() {
 	go c.Crawl()
 }
 
+func (c *Crawler) matchesIgnoreSuffix(url string) bool {
+
+	for _, ext := range c.ignoreSuffixes {
+		if strings.HasSuffix(url, ext) {
+			return true
+		}
+	}
+	return false
+}
+
 // TODO: what happens when an error is spit out by Crawl?
 // the link is considered handled even though it is not traversed.
 
@@ -108,11 +121,16 @@ func (c *Crawler) Start() {
 // Returns error if any occured, nil if none
 func (c *Crawler) Crawl() error {
 	start1 := time.Now()
-	c.totalCrawls++
 
 	// Get URL to crawl from channel
 	defer c.wg.Done()
 	url := <-c.urls
+
+	// if URL matches any of the 'ignore' suffixes, return.
+	// We don't want to crawl it.
+	if c.matchesIgnoreSuffix(url) {
+		return nil
+	}
 
 	// Fetch URL contents
 	startHTTPGET := time.Now()
@@ -151,12 +169,15 @@ func (c *Crawler) Crawl() error {
 	for _, x := range children {
 		if _, present := c.visited.Load(x); !present {
 			c.addSite(x)
+
 			// TODO: check for Crawlers that return error.
 			go c.Crawl()
 		}
 	}
 
-	defer log.Printf("Crawl #%d (%s)  took %s. GET(%s), HTML.Read(%s)\n", 
+	c.totalCrawls++
+
+	defer log.Printf("Crawl #%d (%s)  took %s. GET(%s), HTML.Read(%s)\n",
 		c.totalCrawls, url, time.Since(start1), elapsedHTTPGET, elapsedReadBody)
 	// No error
 	return nil
@@ -179,14 +200,14 @@ func (c *Crawler) printRecurse(site string, indent int, visited map[string]bool)
 	for _, child := range children.([]string) {
 
 		// Print child
-		for i:=0; i < indent; i++ {
+		for i := 0; i < indent; i++ {
 			fmt.Printf(" ")
 		}
 		fmt.Printf("%s\n", child)
 
 		// If child has not been visited do it
 		if _, ok := visited[child]; !ok {
-			c.printRecurse(child, indent+1, visited)		
+			c.printRecurse(child, indent+1, visited)
 		}
 	}
 }
@@ -198,7 +219,6 @@ func (c *Crawler) PrintSitemapHierarchy() {
 	c.printRecurse(c.baseSite, 1, visited)
 }
 
-// TODO: improve the sitemap printing 
 func (c *Crawler) PrintSitemapFlat() {
 	c.sitemap.Range(func(k, v interface{}) bool {
 		v1, ok := v.([]string)
@@ -262,9 +282,9 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 
 func main() {
 	var c *Crawler
-    
-    // Crawl and measure time taken 
-    start1 := time.Now()
+
+	// Crawl and measure time taken
+	start1 := time.Now()
 	c = c.New("https://monzo.com")
 	c.Start()
 	c.Wait()
@@ -276,8 +296,8 @@ func main() {
 	// c.PrintSitemapHierarchy()
 	// elapsed2 := time.Since(start2)
 	// log.Printf("PrintSitemapHierarchy took %s\n", elapsed2)
-	
-	// Print Sitemap Flat 
+
+	// Print Sitemap Flat
 	// start3 := time.Now()
 	// c.PrintSitemapFlat()
 	// elapsed3 := time.Since(start3)
