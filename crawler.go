@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,6 +12,12 @@ import (
 	"sync"
 	"time"
 )
+
+// ---------------------
+// Globals
+// ---------------------
+
+var verbose *bool
 
 // ---------------------
 // Error implementations
@@ -39,8 +46,8 @@ func (e InvalidURL) Error() string {
 // Used for 'urls' buffered channel
 const MAX_CHAN_URLS int = 100
 
-// Crawler has not been tested with successive crawls yet,
-// safest is to create a new Crawler and operate with it
+// Crawler has not been tested with successive crawls yet (TODO)
+// Safest is to create a new Crawler and operate with it
 type Crawler struct {
 
 	// First site to crawl
@@ -185,8 +192,11 @@ func (c *Crawler) Crawl() error {
 	// Increment number of pages crawled
 	c.totalCrawls++
 
-	defer log.Printf("Crawl #%d (%s)  took %s. GET(%s), HTML.Read(%s)\n",
-		c.totalCrawls, url, time.Since(start1), elapsedHTTPGET, elapsedReadBody)
+	if *verbose {
+		defer log.Printf("Crawl #%d (%s)  took %s. GET(%s), HTML.Read(%s)\n",
+			c.totalCrawls, url, time.Since(start1), elapsedHTTPGET, elapsedReadBody)
+	}
+
 	// No error
 	return nil
 }
@@ -196,8 +206,7 @@ func (c *Crawler) Wait() {
 	c.wg.Wait()
 }
 
-// Print all crawled URLs and print them without any hierarchical relationship to their
-// children
+// Print all crawled URLs and print them without any hierarchical relationship to their children
 func (c *Crawler) PrintSitemapFlattest() {
 	c.sitemap.Range(func(k, v interface{}) bool {
 		fmt.Println(k)
@@ -270,23 +279,30 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 }
 
 func main() {
+	verbose = flag.Bool("verbose", false, "Provides versbose output.")
+	printMode := flag.String("printmode", "mode1", "options: mode1 (flattest), mode2 (flat)")
+	flag.Parse()
+
 	var c *Crawler = new(Crawler)
 
 	// Crawl and measure time taken
-	start1 := time.Now()
+	start := time.Now()
 	c.Init("https://monzo.com")
 	c.Start()
 	c.Wait()
-	elapsed1 := time.Since(start1)
-	log.Printf("%d Crawls took %s\n", c.totalCrawls, elapsed1)
+	elapsed := time.Since(start)
 
-	// Print Sitemap Flattest
-	// ----------------------
-	c.PrintSitemapFlattest()
+	if *verbose {
+		log.Printf("%d Crawls took %s\n", c.totalCrawls, elapsed)
+	}
 
-	// Print Sitemap Flat
-	// ------------------
-	// c.PrintSitemapFlat()
+	switch *printMode {
+	case "mode1":
+		c.PrintSitemapFlattest()
+	case "mode2":
+		c.PrintSitemapFlat()
+
+	}
 
 	log.Printf("Crawler done. Exiting main.")
 }
