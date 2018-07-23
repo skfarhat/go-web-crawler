@@ -301,7 +301,8 @@ func main() {
 		c.PrintSitemapFlattest()
 	case "mode2":
 		c.PrintSitemapFlat()
-
+	default:
+		fmt.Printf("Unknown printmode (%s). Not printing.\n")
 	}
 
 	log.Printf("Crawler done. Exiting main.")
