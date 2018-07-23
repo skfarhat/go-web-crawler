@@ -87,7 +87,8 @@ func (c *Crawler) Init(baseSite string) error {
 
 	// Parse baseSite URL
 	u, e := url.Parse(baseSite)
-	if e != nil {
+
+	if e != nil || len(u.Host) == 0 {
 		return InvalidURL(baseSite)
 	}
 
@@ -122,7 +123,6 @@ func (c *Crawler) Start() {
 // Checks if the provided URL ends with any of the suffixes defined in ignoreSuffixes.
 // Returns true if it does, otherwise false.
 func (c *Crawler) matchesIgnoreSuffix(url string) bool {
-
 	for _, ext := range c.ignoreSuffixes {
 		if strings.HasSuffix(url, ext) {
 			return true
@@ -279,13 +279,13 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 }
 
 func main() {
+	// Parse command line
 	verbose = flag.Bool("verbose", false, "Provides versbose output.")
 	printMode := flag.String("printmode", "mode1", "options: mode1 (flattest), mode2 (flat)")
 	flag.Parse()
 
-	var c *Crawler = new(Crawler)
-
 	// Crawl and measure time taken
+	var c *Crawler = new(Crawler)
 	start := time.Now()
 	c.Init("https://monzo.com")
 	c.Start()
@@ -302,7 +302,7 @@ func main() {
 	case "mode2":
 		c.PrintSitemapFlat()
 	default:
-		fmt.Printf("Unknown printmode (%s). Not printing.\n")
+		log.Fatalf("Unknown printmode (%s). Not printing.\n", *printMode)
 	}
 
 	log.Printf("Crawler done. Exiting main.")
