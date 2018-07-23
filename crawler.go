@@ -164,7 +164,6 @@ func (c *Crawler) Crawl() error {
 	if err != nil || resp.StatusCode >= 300 {
 		// TODO LATER: add the url string to list of broken URLs
 		c.visited.Delete(url)
-		resp.Body.Close()
 		return Http404Error(url)
 	}
 	defer resp.Body.Close()
