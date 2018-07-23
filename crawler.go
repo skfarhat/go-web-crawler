@@ -45,7 +45,7 @@ func (e InvalidURL) Error() string {
 
 // Stat struct storing the elapsed time of the total crawl operation and that of HTTP.GET
 type CrawlStat struct {
-	getTime time.Duration
+	getTime   time.Duration
 	totalTime time.Duration
 }
 
@@ -101,7 +101,7 @@ func (c *Crawler) Init(baseSite string) error {
 		return InvalidURL(baseSite)
 	}
 
-	// Reset the map 
+	// Reset the map
 	c.stats = sync.Map{}
 
 	// e.g. https://monzo.com/
@@ -161,7 +161,7 @@ func (c *Crawler) Crawl() error {
 	// Fetch URL contents
 	startHTTPGET := time.Now()
 	resp, err := http.Get(url)
-	if err != nil  || resp.StatusCode >= 300 {
+	if err != nil || resp.StatusCode >= 300 {
 		// TODO LATER: add the url string to list of broken URLs
 		c.visited.Delete(url)
 		resp.Body.Close()
@@ -204,9 +204,9 @@ func (c *Crawler) Crawl() error {
 	// Increment number of pages crawled
 	c.totalCrawls++
 
-	// Compute total time taken and store stats 
+	// Compute total time taken and store stats
 	totalTime := time.Since(start1)
-	c.stats.Store(url, CrawlStat{totalTime: totalTime , getTime: elapsedHTTPGET})
+	c.stats.Store(url, CrawlStat{totalTime: totalTime, getTime: elapsedHTTPGET})
 
 	// No error
 	return nil

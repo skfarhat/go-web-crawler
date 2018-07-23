@@ -175,14 +175,14 @@ func TestCrawlSampleSite(t *testing.T) {
 		// Page 1
 		if page1Children, ok := c.sitemap.Load(ts.URL + "/page1.html"); !ok {
 			t.Errorf("Sitemap contains link (page1.html) which it shouldn't.")
-		} else if i := Find(page1Children.([]string), ts.URL + "/page11.html"); i < 0 {
+		} else if i := Find(page1Children.([]string), ts.URL+"/page11.html"); i < 0 {
 			t.Errorf("page11.html is not child of page1.html as it should be.")
 		}
 
 		// Page 2
 		if page2Children, ok := c.sitemap.Load(ts.URL + "/page2.html"); !ok {
 			t.Errorf("Sitemap contains link (page2.html) which it shouldn't.")
-		} else if i := Find(page2Children.([]string), ts.URL+ "/page22a.html"); i < 0 {
+		} else if i := Find(page2Children.([]string), ts.URL+"/page22a.html"); i < 0 {
 			t.Errorf("page22a.html is not child of page2.html as it should be.")
 		}
 
@@ -199,7 +199,7 @@ func TestCrawlSampleSite(t *testing.T) {
 		// Page 22a
 		if page22aChildren, ok := c.sitemap.Load(ts.URL + "/page22a.html"); !ok {
 			t.Errorf("Sitemap contains link (page22a.html) which it shouldn't.")
-		} else if i := Find(page22aChildren.([]string), ts.URL+ "/page22b.html"); i < 0 {
+		} else if i := Find(page22aChildren.([]string), ts.URL+"/page22b.html"); i < 0 {
 			t.Errorf("page22b.html is not child of page22a.html as it should be.")
 		}
 
