@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"sync"
@@ -17,6 +18,7 @@ import (
 
 type Http404Error string
 type InvalidHTMLContent string
+type InvalidURL string
 
 func (e Http404Error) Error() string {
 	return fmt.Sprintf("Failed to find for URL (%s).", e)
@@ -26,11 +28,14 @@ func (e InvalidHTMLContent) Error() string {
 	return fmt.Sprintf("Could not parse HTML content for URL (%s).", e)
 }
 
+func (e InvalidURL) Error() string {
+	return fmt.Sprintf("Failed to parse URL (%s)", e)
+}
+
 // --------------------
 // Crawler
 // --------------------
 
-// TODO: what happens if we raise this?
 // Used for 'urls' buffered channel
 const MAX_CHAN_URLS int = 100
 
@@ -42,6 +47,7 @@ type Crawler struct {
 	baseSite string
 
 	// Domain name encompassing all crawls, this will extracted from 'baseSite' in New()
+	// and used for the regex FindAbsoluteLinks
 	domain string
 
 	// urls channel used by all goroutines to add new URLs to parse
@@ -69,24 +75,30 @@ type Crawler struct {
 	ignoreSuffixes []string
 }
 
-func (c *Crawler) New(baseSite string) *Crawler {
-	if c == nil {
-		c = new(Crawler)
+// Initialise the Crawler
+// Must be called before other functions
+// Returns error if any occured, otherwise returns nil
+func (c *Crawler) Init(baseSite string) error {
+
+	// Parse baseSite URL
+	u, e := url.Parse(baseSite)
+	if e != nil {
+		return InvalidURL(baseSite)
 	}
 
 	// e.g. https://monzo.com/
 	c.baseSite = baseSite
 
-	// TODO: extract the domain from baseSite. Hardcoded for now.
-	c.domain = "monzo.com"
-
 	// Create buffered channel
 	c.urls = make(chan string, MAX_CHAN_URLS)
+
+	// Extract the domain from the parsed URL
+	c.domain = u.Host
 
 	// Initialise list of ignore suffixes
 	c.ignoreSuffixes = []string{"pdf", "png", "jpeg"}
 
-	return c
+	return nil
 }
 
 // Adds a new site to process
@@ -136,8 +148,7 @@ func (c *Crawler) Crawl() error {
 	startHTTPGET := time.Now()
 	resp, err := http.Get(url)
 	if err != nil {
-		// TODO: add the url string to list of broken URLs
-		// IMPROVEMENT: pass the err to Http404Error so that we have a reference to the original
+		// TODO: LATER: add the url string to list of broken URLs
 		return Http404Error(url)
 	}
 	elapsedHTTPGET := time.Since(startHTTPGET)
@@ -155,7 +166,7 @@ func (c *Crawler) Crawl() error {
 	// Find relative links and convert them to absolute
 	children := FindRelativeLinks(html)
 	for i, x := range children {
-		children[i] = "https://" + c.domain + x
+		children[i] = c.baseSite + x
 	}
 
 	// Find absolute links
@@ -237,6 +248,8 @@ func (c *Crawler) PrintSitemapFlat() {
 // Link handling
 // --------------------
 
+// TODO: look into using 'urls' package
+
 func FindRelativeLinks(html string) []string {
 	const relativePattern string = "href=\"(/[-\\w\\d_/\\.]+)\""
 	const captureGroup int = 1
@@ -281,11 +294,11 @@ func FindAbsoluteLinks(html string, domain *string) []string {
 }
 
 func main() {
-	var c *Crawler
+	var c *Crawler = new(Crawler)
 
 	// Crawl and measure time taken
 	start1 := time.Now()
-	c = c.New("https://monzo.com")
+	c.Init("https://monzo.com")
 	c.Start()
 	c.Wait()
 	elapsed1 := time.Since(start1)
