@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/pkg/profile"
+	"github.com/valyala/fasthttp"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,6 +20,7 @@ import (
 // ---------------------
 
 var verbose *bool
+var fast *bool
 
 // ---------------------
 // Error implementations
@@ -160,18 +163,37 @@ func (c *Crawler) Crawl() error {
 
 	// Fetch URL contents
 	startHTTPGET := time.Now()
-	resp, err := http.Get(url)
-	if err != nil || resp.StatusCode >= 300 {
-		// TODO LATER: add the url string to list of broken URLs
-		c.visited.Delete(url)
-		return Http404Error(url)
+	var bytes []byte
+	var err error
+	var elapsedHTTPGET time.Duration
+	if fast != nil && *fast {
+		// FastHTTP
+		startHTTPGET := time.Now()
+		req := fasthttp.AcquireRequest()
+		req.SetRequestURI(url)
+		resp := fasthttp.AcquireResponse()
+		client := &fasthttp.Client{}
+		err := client.Do(req, resp)
+		elapsedHTTPGET = time.Since(startHTTPGET)
+		if err != nil {
+			return Http404Error(url)
+		}
+		bytes = resp.Body()
+	} else {
+		resp, err := http.Get(url)
+		if err != nil || resp.StatusCode >= 300 {
+			// TODO LATER: add the url string to list of broken URLs
+			c.visited.Delete(url)
+			return Http404Error(url)
+		}
+		elapsedHTTPGET = time.Since(startHTTPGET)
+		defer resp.Body.Close()
+		// Read HTML from Body
+		bytes, err = ioutil.ReadAll(resp.Body)
 	}
-	defer resp.Body.Close()
-	elapsedHTTPGET := time.Since(startHTTPGET)
 
-	// Read HTML from Body
-	bytes, err := ioutil.ReadAll(resp.Body)
-	var html = string(bytes)
+	// Bytes to String
+	html := string(bytes)
 	if err != nil {
 		return InvalidHTMLContent(url)
 	}
@@ -292,7 +314,10 @@ func main() {
 	// Parse command line
 	verbose = flag.Bool("verbose", false, "Provides versbose output.")
 	printMode := flag.String("printmode", "mode1", "options: mode1 (flattest), mode2 (flat)")
+	fast = flag.Bool("fast", false, "Use httpfast")
 	flag.Parse()
+
+	defer profile.Start().Stop()
 
 	// Crawl and measure time taken
 	var c *Crawler = new(Crawler)
